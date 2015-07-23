@@ -51,6 +51,35 @@ impl Add for Color {
     }
 }
 
+impl From<&'static str> for Color {
+    fn from(s: &str) -> Color {
+        assert!(s.len() ==  4 || s.len() == 7);
+        assert!(s.starts_with("#"));
+        let p = if s.len() == 4 {1} else {2};
+        let parts = (0..3)
+            .map(|i| (1 + i*p, 1 + (i + 1)*p))
+            .map(|(l, r)| &s[l..r])
+            .map(|s| u8::from_str_radix(s, 16).unwrap())
+            .map(|i| if p == 1 {i * 17} else {i})
+            .map(|i| i as f64 / 255.0)
+            .collect::<Vec<_>>();
+        Color::new(parts[0], parts[1], parts[2])
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_from_hex() {
+        let c = Color::from("#FFF");
+        assert!(c.r > 0.9);
+        assert!(c.g > 0.9);
+        assert!(c.b > 0.9);
+    }
+}
+
 
 pub mod palette {
     use super::Color;

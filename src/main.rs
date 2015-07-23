@@ -18,18 +18,18 @@ fn main() {
                 resolution: [640, 480],
                 ..Default::default()
             },
-            ambient_light: Color::new(0.2, 0.2, 0.2),
+            ambient_light: Color::from("#111"),
             background: palette::BLUE,
         },
         SmoothingFilter(2)
     );
     let sphere = Object::new(
         Sphere::new(p(0.0, 0.0, 0.0), 1.0),
-        Color::new(0.5, 0.5, 0.8)
+        Color::from("#FFF")
     );
 
     scene.add_object(sphere);
-    scene.add_light(Light::new(palette::RED * 0.3,
+    scene.add_light(Light::new(Color::from("#FF0"),
                                p(6.0, 5.0, 5.0)));
 
     let image = scene.render();
