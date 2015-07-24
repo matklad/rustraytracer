@@ -61,9 +61,8 @@ impl Shape for Sphere {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use geom::{Point};
-    use geom::{Cross};
-    use geom::shape::{Shape};
+    use geom::{Point, Cross};
+    use geom::shape::{Shape, Intersection};
     use geom::ray::{Ray};
 
     use geom::shortcuts::{p};
@@ -93,7 +92,7 @@ mod tests {
 
             match sphere.intersect(&ray) {
                 None => misses += 1,
-                Some(p) => {
+                Some(Intersection {point: p, ..}) => {
                     hits += 1;
                     assert!(is_on_sphere(p));
                     assert!(is_on_ray(p));

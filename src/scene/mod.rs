@@ -68,39 +68,19 @@ impl Scene {
 
     fn colorize(&self, view_direction: UnitVector,
                 object: &Object, intersection: Intersection) -> Color {
-        let mut result = self.colorize_ambient(object);
-        for light in self.lights.iter() {
-            if self.is_visible(light.position(), intersection.point) {
-                let light_direction = light.position().direction_to(intersection.point);
-                let normal = intersection.normal;
-                result = result
-                    + self.colorize_diffuse(&light, light_direction,
-                                            object, normal)
-                    + self.colorize_specular(view_direction,
-                                             &light, light_direction,
-                                             object, normal);
-            }
+        let mut result = object.colorize_ambient(self.ambient_light);
+        let visible_lights = self.lights.iter()
+            .filter(|&light| self.is_visible(light.position(), intersection.point));
+
+        for light in visible_lights {
+            let light_direction = light.position().direction_to(intersection.point);
+            let normal = intersection.normal;
+            result = result
+                + object.colorize_diffuse(&light, light_direction, normal)
+                + object.colorize_specular(view_direction, &light,
+                                           light_direction, normal);
         }
         result
-    }
-
-    fn colorize_ambient(&self, object: &Object) -> Color {
-        object.color() * self.ambient_light
-    }
-
-    fn colorize_diffuse(&self, light: &Light, light_direction: UnitVector,
-                        object: &Object, normal: UnitVector) -> Color {
-        object.color() * light.color() * -(light_direction.dot(normal))
-    }
-
-    fn colorize_specular(&self,  view_direction: UnitVector,
-                         light: &Light, light_direction: UnitVector,
-                         object: &Object, normal: UnitVector) -> Color {
-
-        let r = light_direction.reflect(normal);
-        let k = (-r.dot(view_direction)).powf(3.0f64);
-        // println!("{}", k);
-        object.color() * light.color() * k
     }
 
     fn find_obstacle(&self, ray: &Ray) -> Option<(&Object, Intersection)> {
@@ -117,5 +97,35 @@ impl Scene {
         let ray = Ray::from_to(ray.along(1e-6) , what);
         // FIXME: what if obstacle is behind a light source?
         self.find_obstacle(&ray).is_none()
+    }
+}
+
+trait ColoredObject {
+    fn colorize_ambient(&self, ambient: Color) -> Color;
+    fn colorize_diffuse(&self, light: &Light, light_direction: UnitVector,
+                        normal: UnitVector) -> Color;
+    fn colorize_specular(&self,  view_direction: UnitVector,
+                         light: &Light, light_direction: UnitVector,
+                         normal: UnitVector) -> Color;
+}
+
+
+impl ColoredObject for Object {
+    fn colorize_ambient(&self, ambient: Color) -> Color {
+        self.color() * ambient
+    }
+
+    fn colorize_diffuse(&self, light: &Light, light_direction: UnitVector,
+                        normal: UnitVector) -> Color {
+        self.color() * light.color() * -(light_direction.dot(normal))
+    }
+
+    fn colorize_specular(&self,  view_direction: UnitVector,
+                         light: &Light, light_direction: UnitVector,
+                         normal: UnitVector) -> Color {
+
+        let r = light_direction.reflect(normal);
+        let k = (-r.dot(view_direction)).powf(3.0f64);
+        self.color() * light.color() * k
     }
 }

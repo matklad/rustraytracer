@@ -86,7 +86,7 @@ mod test {
     use props::check_prop2;
 
     #[test]
-    fn test_triangle_interaction() {
+    fn test_triangle_intersection() {
         let t1 = Triangle::new(
             p(0.0, -1.0, -1.0),
             p(0.0, -1.0, 1.0),
