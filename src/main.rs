@@ -5,7 +5,7 @@ use std::io;
 
 use rustraytracer::color::{palette, Color};
 use rustraytracer::display::{PpmWriter, ImageDisplay};
-use rustraytracer::geom::shape::sphere::{Sphere};
+use rustraytracer::geom::shape::{Triangle};
 use rustraytracer::geom::shortcuts::p;
 use rustraytracer::scene::{Scene, SceneConfig, CameraConfig, Light, SmoothingFilter, Object};
 
@@ -24,7 +24,10 @@ fn main() {
         SmoothingFilter(2)
     );
     let sphere = Object::new(
-        Sphere::new(p(0.0, 0.0, 0.0), 1.0),
+        // Sphere::new(p(0.0, 0.0, 0.0), 1.0),
+        Triangle::new(p(0.0, -2.0, -1.0),
+                      p(0.0, 2.0, -1.0),
+                      p(0.0, 0.0, 1.0)),
         Color::from("#FFF")
     );
 

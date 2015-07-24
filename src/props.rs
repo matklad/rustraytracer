@@ -18,7 +18,7 @@ pub fn check_prop2<A, B, F>(mut prop: F)
 
 pub fn check_prop<A, F>(mut prop: F)
     where A: rand::Rand,
-          F: Fn(A) -> () {
+          F: FnMut(A) -> () {
 
     for _ in 0..N_CHECKS {
         let a = rand::random::<A>();

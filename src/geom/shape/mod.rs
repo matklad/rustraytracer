@@ -1,7 +1,11 @@
+mod sphere;
+mod triangle;
+
 use geom::{Point, UnitVector};
 use geom::ray::{Ray};
 
-pub mod sphere;
+pub use self::sphere::Sphere;
+pub use self::triangle::Triangle;
 
 pub trait Shape {
     fn intersect(&self, ray: &Ray) -> Option<Point>;

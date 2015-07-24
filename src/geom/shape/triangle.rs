@@ -1,4 +1,5 @@
-use geom::{Point, UnitVector, Vector, Cross};
+use geom::{Point, UnitVector, Vector, Cross, Dot};
+use geom::ray::Ray;
 use super::Shape;
 
 pub struct Triangle {
@@ -12,12 +13,12 @@ impl Triangle {
     pub fn new(a: Point, b: Point, c: Point) -> Triangle {
         let ab = b - a;
         let ac = c - a;
-        n = av.cross(ac);
+        let n = ab.cross(ac).direction();
         Triangle {
             a: a,
             ab: ab,
             ac: ac,
-            normals = [n; 3],
+            normals: [n; 3],
         }
     }
 
@@ -28,30 +29,89 @@ impl Triangle {
             a: a,
             ab: ab,
             ac: ac,
-            normals = normals,
+            normals: normals,
         }
+    }
+
+    fn local_coordinates(&self, point: Point) -> (f64, f64, f64) {
+        let ort_ac = self.ac.cross(self.normal());
+        let ort_ab = self.ab.cross(self.normal());
+        let point = point - self.a;
+        let alpha = point.dot(ort_ac) / self.ab.dot(ort_ac);
+        let beta = point.dot(ort_ab) / self.ac.dot(ort_ab);
+        let gamma = 1.0 - (alpha + beta);
+        (alpha, beta, gamma)
+    }
+
+    fn normal(&self) -> UnitVector{
+        self.ac.cross(self.ab).direction()
     }
 }
 
 impl Shape for Triangle {
     fn intersect(&self, ray: &Ray) -> Option<Point> {
         // a + alpha ab + beta ac = ray.origin + t * ray.direction
-        let n = self.a.cross(self.b);
-        let t = (self.a - ray.origin).dot(n) / ray.direction.dot(n);
-        if t < 0 {
+        let t = (self.a - ray.origin).dot(self.normal()) / ray.direction.dot(self.normal());
+        if t < 0.0 {
             return None;
         }
-        let p = ray.along(t) - self.a;
-
-        let ort_ac = self.ac.cross(n);
-        let ort_ab = self.ab.cross(n);
-        let alpha = p.dot(ort_ac) / ab.dot(ort_ac);
-        let beta = p.dot(ort_ab) / ac.dot(ort_ab);
-        let f = |x| 0.0 < x < 1.0;
-        if f(alpha) && f (beta) && f (1 - (alpha + beta)) {
-            Some(p)
+        let point = ray.along(t);
+        let (alpha, beta, gamma) = self.local_coordinates(point);
+        let f = |x| 0.0 < x && x < 1.0;
+        if f(alpha) && f(beta) && f(gamma)  {
+            Some(point)
         } else {
             None
         }
+    }
+
+    fn normal_at(&self, point: Point) -> UnitVector {
+        let (alpha, beta, gamma) = self.local_coordinates(point);
+        return (alpha * self.normals[0] +
+                beta * self.normals[1] +
+                gamma * self.normals[2]).direction()
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use geom::shape::Shape;
+    use geom::shortcuts::p;
+    use geom::ray::Ray;
+    use props::check_prop2;
+
+    #[test]
+    fn test_triangle_interaction() {
+        let t1 = Triangle::new(
+            p(0.0, -1.0, -1.0),
+            p(0.0, -1.0, 1.0),
+            p(0.0, 1.0, 1.0));
+        let t2 = Triangle::new(
+            p(0.0, 1.0, 1.0),
+            p(0.0, 1.0, -1.0),
+            p(0.0, -1.0, -1.0));
+        let origin = p(-1.0, 0.0, 0.0);
+        let mut t1_hits = 0;
+        let mut t2_hits = 0;
+
+        check_prop2(|y: f64, z: f64| {
+            let y = y % 1.0;
+            let z = z % 1.0;
+            let ray = Ray::from_to(origin, p(0.0, y, z));
+            let i1 = t1.intersect(&ray);
+            let i2 = t2.intersect(&ray);
+            assert!((i1.is_some() || i2.is_some()) &&
+                    !(i1.is_some() && i2.is_some()));
+            if i1.is_some() {
+                t1_hits += 1;
+            }
+            if i2.is_some() {
+                t2_hits += 1;
+            }
+        });
+
+        assert!(t1_hits > 10);
+        assert!(t2_hits > 10);
     }
 }
