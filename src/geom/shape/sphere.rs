@@ -1,6 +1,6 @@
 use geom::{Point, UnitVector, Dot};
 use geom::ray::{Ray};
-use super::Shape;
+use super::{Shape, Intersection};
 
 pub struct Sphere {
     center: Point,
@@ -15,12 +15,15 @@ impl Sphere {
             radius: radius
         }
     }
-}
 
+    fn normal_at(&self, point: Point) -> UnitVector {
+        return self.center.direction_to(point)
+    }
+}
 
 impl Shape for Sphere {
 
-    fn intersect(&self, ray: &Ray) -> Option<Point> {
+    fn intersect(&self, ray: &Ray) -> Option<Intersection> {
         // (x - self.center)^2 == self.radius
         // x = ray.center + t * ray.direction
         let o = ray.origin - self.center;
@@ -32,20 +35,25 @@ impl Shape for Sphere {
             return None;
         }
 
-        let t1 = -k - disc.sqrt();
-        if t1 > 0.0 {
-            return Some(ray.along(t1));
-        }
-        let t2 = -k + disc.sqrt();
-        if t2 > 0.0 {
-            return Some(ray.along(t2));
-        }
+        let t = {
+            let t1 = -k - disc.sqrt();
+            let t2 = -k + disc.sqrt();
+            if t1 > 0.0 {
+                Some(t1)
+            } else if t2 > 0.0 {
+                Some(t2)
+            } else {
+                None
+            }
+        };
 
-        None
-    }
-
-    fn normal_at(&self, point: Point) -> UnitVector {
-        return self.center.direction_to(point)
+        t.map(|t| {
+            let point = ray.along(t);
+            Intersection {
+                point: point,
+                normal: self.normal_at(point)
+            }
+        })
     }
 }
 

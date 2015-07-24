@@ -5,7 +5,7 @@ mod light;
 mod filters;
 
 use geom::{UnitVector, Point, Dot};
-use geom::shape::Shape;
+use geom::shape::{Shape, Intersection};
 use geom::ray::{Ray};
 use color::Color;
 use self::camera::Camera;
@@ -67,12 +67,12 @@ impl Scene {
     }
 
     fn colorize(&self, view_direction: UnitVector,
-                object: &Object, point: Point) -> Color {
+                object: &Object, intersection: Intersection) -> Color {
         let mut result = self.colorize_ambient(object);
         for light in self.lights.iter() {
-            if self.is_visible(light.position(), point) {
-                let light_direction = light.position().direction_to(point);
-                let normal = object.shape().normal_at(point);
+            if self.is_visible(light.position(), intersection.point) {
+                let light_direction = light.position().direction_to(intersection.point);
+                let normal = intersection.normal;
                 result = result
                     + self.colorize_diffuse(&light, light_direction,
                                             object, normal)
@@ -103,7 +103,7 @@ impl Scene {
         object.color() * light.color() * k
     }
 
-    fn find_obstacle(&self, ray: &Ray) -> Option<(&Object, Point)> {
+    fn find_obstacle(&self, ray: &Ray) -> Option<(&Object, Intersection)> {
         for obj in self.objects.iter() {
             if let Some(point) = obj.shape().intersect(&ray) {
                 return Some((obj, point))

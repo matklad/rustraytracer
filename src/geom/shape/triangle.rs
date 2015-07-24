@@ -1,6 +1,6 @@
 use geom::{Point, UnitVector, Vector, Cross, Dot};
 use geom::ray::Ray;
-use super::Shape;
+use super::{Shape, Intersection};
 
 pub struct Triangle {
     a: Point,
@@ -46,10 +46,16 @@ impl Triangle {
     fn normal(&self) -> UnitVector{
         self.ac.cross(self.ab).direction()
     }
+
+    fn interpolate_normal(&self, alpha: f64, beta: f64, gamma: f64) -> UnitVector {
+        return (alpha * self.normals[0] +
+                beta * self.normals[1] +
+                gamma * self.normals[2]).direction()
+    }
 }
 
 impl Shape for Triangle {
-    fn intersect(&self, ray: &Ray) -> Option<Point> {
+    fn intersect(&self, ray: &Ray) -> Option<Intersection> {
         // a + alpha ab + beta ac = ray.origin + t * ray.direction
         let t = (self.a - ray.origin).dot(self.normal()) / ray.direction.dot(self.normal());
         if t < 0.0 {
@@ -59,18 +65,16 @@ impl Shape for Triangle {
         let (alpha, beta, gamma) = self.local_coordinates(point);
         let f = |x| 0.0 < x && x < 1.0;
         if f(alpha) && f(beta) && f(gamma)  {
-            Some(point)
+            Some(Intersection {
+                point: point,
+                normal: self.interpolate_normal(alpha, beta, gamma)
+            })
         } else {
             None
         }
     }
 
-    fn normal_at(&self, point: Point) -> UnitVector {
-        let (alpha, beta, gamma) = self.local_coordinates(point);
-        return (alpha * self.normals[0] +
-                beta * self.normals[1] +
-                gamma * self.normals[2]).direction()
-    }
+
 }
 
 #[cfg(test)]
