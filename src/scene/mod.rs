@@ -84,12 +84,17 @@ impl Scene {
     }
 
     fn find_obstacle(&self, ray: &Ray) -> Option<(&Object, Intersection)> {
+        let mut result = None;
         for obj in self.objects.iter() {
-            if let Some(point) = obj.shape().intersect(&ray) {
-                return Some((obj, point))
+            if let Some(intersection) = obj.shape().intersect(&ray) {
+                result = match result {
+                    None => Some((obj, intersection)),
+                    Some(previous) if intersection < previous.1 => Some((obj, intersection)),
+                    _ => result
+                }
             }
         }
-        None
+        result
     }
 
     fn is_visible(&self, what: Point, from: Point) -> bool {
