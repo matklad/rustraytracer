@@ -43,8 +43,8 @@ impl Triangle {
         (alpha, beta, gamma)
     }
 
-    fn normal(&self) -> UnitVector{
-        self.ac.cross(self.ab).direction()
+    fn normal(&self) -> Vector{
+        self.ac.cross(self.ab)
     }
 
     fn interpolate_normal(&self, alpha: f64, beta: f64, gamma: f64) -> UnitVector {
