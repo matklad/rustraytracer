@@ -29,9 +29,9 @@ impl Default for CameraConfig {
         use geom::shortcuts::{p, v};
 
         CameraConfig {
-            position: p(10.0, 0.0, 0.0),
+            position: p(0.0, 50.0, 0.0),
             look_at: p(0.0, 0.0, 0.0),
-            focus_distance: 5.0,
+            focus_distance: 20.0,
             up: v(0.0, 0.0, 1.0).direction(),
             resolution: [640, 480],
             size: [6.4, 4.8]

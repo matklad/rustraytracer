@@ -48,9 +48,9 @@ impl Triangle {
     }
 
     fn interpolate_normal(&self, alpha: f64, beta: f64, gamma: f64) -> UnitVector {
-        return (alpha * self.normals[0] +
-                beta * self.normals[1] +
-                gamma * self.normals[2]).direction()
+        return (alpha * self.normals[1] +
+                beta * self.normals[2] +
+                gamma * self.normals[0]).direction()
     }
 }
 

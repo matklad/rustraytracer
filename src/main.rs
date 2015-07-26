@@ -3,10 +3,10 @@ extern crate rustraytracer;
 use std::fs;
 use std::io;
 
-use rustraytracer::color::{palette, Color};
+use rustraytracer::color::Color;
 use rustraytracer::display::{PpmWriter, ImageDisplay};
-use rustraytracer::geom::shape::{Mesh, Triangle, Sphere};
-use rustraytracer::geom::shortcuts::p;
+use rustraytracer::geom::shape::{Mesh};
+use rustraytracer::geom::shortcuts::{p, v};
 use rustraytracer::scene::{Scene, SceneConfig, CameraConfig, Light, SmoothingFilter, Object};
 
 
@@ -15,42 +15,28 @@ fn main() {
     let mut scene = Scene::new(
         SceneConfig {
             camera: CameraConfig {
-                resolution: [640, 480],
+                position: p(0.0, 40.0, 90.0),
+                focus_distance: 80.0,
+                up: v(0.0, 0.0, -1.0).direction(),
+                resolution: [320, 240],
+                size: [40.0, 30.0],
                 ..Default::default()
             },
-            ambient_light: Color::from("#555"),
-            background: palette::BLUE,
+            ambient_light: Color::from("#444"),
+            background: Color::from("#115"),
         },
-        SmoothingFilter(2)
+        SmoothingFilter(1)
     );
 
-    let t1 = Triangle::new(p(0.0, -3.0, 0.0),
-                           p(-3.0, 0.0, 0.0),
-                           p(0.0, 0.0, 3.0));
 
-    let t2 = Triangle::new(p(-3.0, 0.0, 0.0),
-                           p(0.0, 3.0, 0.0),
-                           p(0.0, 0.0, 3.0));
+    let mut teapot = io::BufReader::new(fs::File::open("./utah.obj").unwrap());
+    let mesh = Mesh::from_obj(&mut teapot).unwrap();
 
-    let mesh = Mesh::new(vec![
-        t1,
-        t2
-            ]);
-
-    let obj = Object::new(
-        // Sphere::new(p(0.0, 0.0, 0.0), 1.0),
-        mesh,
-        Color::from("#FFF")
-    );
-
+    let obj = Object::new(mesh, Color::from("#FFF"));
     scene.add_object(obj);
-    let light_pos = p(6.0, 1.0, 0.0);
-    // scene.add_object(Object::new(
-    //     Sphere::new(light_pos, 0.3),
-    //     Color::from("#FF0")
-    //     ));
-    scene.add_light(Light::new(Color::from("#F00"),
-                               light_pos));
+    scene.add_light(Light::new(
+        Color::from("#FFF"),
+        p(80.0, 80.0, 50.0)));
 
     let image = scene.render();
     let path = "./out.ppm";
