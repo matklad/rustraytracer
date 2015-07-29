@@ -17,18 +17,6 @@ impl Point {
     pub fn direction_to(self, target: Point) -> UnitVector {
         (target - self).direction()
     }
-
-    pub fn x(&self) -> f64 {
-        self.radius_vector.x()
-    }
-
-    pub fn y(&self) -> f64 {
-        self.radius_vector.y()
-    }
-
-    pub fn z(&self) -> f64 {
-        self.radius_vector.z()
-    }
 }
 
 impl fmt::Display for Point {

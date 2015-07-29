@@ -8,26 +8,14 @@ use super::{Cross, Dot};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Vector {
-    x: f64,
-    y: f64,
-    z: f64
+    pub x: f64,
+    pub y: f64,
+    pub z: f64
 }
 
 impl Vector {
     pub fn new(x: f64, y: f64, z: f64) -> Vector {
         Vector { x: x, y: y, z: z}
-    }
-
-    pub fn x(&self) -> f64 {
-        self.x
-    }
-
-    pub fn y(&self) -> f64 {
-        self.y
-    }
-
-    pub fn z(&self) -> f64 {
-        self.z
     }
 
     pub fn is_almost_zero(self) -> bool {
