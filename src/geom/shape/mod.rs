@@ -2,13 +2,15 @@ use std::cmp::{Ordering};
 use geom::{Point, UnitVector};
 use geom::ray::{Ray};
 
+mod mesh;
+mod plane;
 mod sphere;
 mod triangle;
-mod mesh;
 
+pub use self::mesh::Mesh;
+pub use self::plane::Plane;
 pub use self::sphere::Sphere;
 pub use self::triangle::Triangle;
-pub use self::mesh::Mesh;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Intersection {
