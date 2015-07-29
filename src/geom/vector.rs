@@ -15,6 +15,7 @@ pub struct Vector {
 
 impl Vector {
     pub fn new(x: f64, y: f64, z: f64) -> Vector {
+        assert!(!(x.is_nan() || y.is_nan() || z.is_nan()));
         Vector { x: x, y: y, z: z}
     }
 

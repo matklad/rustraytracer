@@ -122,7 +122,8 @@ impl ColoredObject for Object {
 
     fn colorize_diffuse(&self, light: &Light, light_direction: UnitVector,
                         normal: UnitVector) -> Color {
-        self.color() * light.color() * -(light_direction.dot(normal))
+        let k = (-light_direction.dot(normal)).max(0.0);
+        self.color() * light.color() * k
     }
 
     fn colorize_specular(&self,  view_direction: UnitVector,
@@ -130,7 +131,7 @@ impl ColoredObject for Object {
                          normal: UnitVector) -> Color {
 
         let r = light_direction.reflect(normal);
-        let k = (-r.dot(view_direction)).powf(3.0f64);
+        let k = (-r.dot(view_direction)).powf(3.0f64).max(0.0);
         self.color() * light.color() * k
     }
 }
