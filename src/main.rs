@@ -7,7 +7,7 @@ use rustraytracer::color::Color;
 use rustraytracer::display::{PpmWriter, ImageDisplay};
 use rustraytracer::geom::shape::{Mesh};
 use rustraytracer::geom::shortcuts::{p, v};
-use rustraytracer::scene::{Scene, SceneConfig, CameraConfig, Light, SmoothingFilter, Object};
+use rustraytracer::scene::{Scene, SceneConfig, CameraConfig, Light, SmoothingFilter, Primitive};
 
 
 #[cfg_attr(test, allow(dead_code))]
@@ -18,7 +18,7 @@ fn main() {
                 position: p(0.0, 40.0, 90.0),
                 focus_distance: 80.0,
                 up: v(0.0, 0.0, -1.0).direction(),
-                resolution: [320, 240],
+                resolution: [640, 480],
                 size: [40.0, 30.0],
                 ..Default::default()
             },
@@ -32,10 +32,10 @@ fn main() {
     let mut teapot = io::BufReader::new(fs::File::open("./utah.obj").unwrap());
     let mesh = Mesh::from_obj(&mut teapot).unwrap();
 
-    let obj = Object::new(mesh, Color::from("#FFF"));
-    scene.add_object(obj);
+    let prim = Primitive::new(mesh, Color::from("#444"));
+    scene.add_primitive(prim);
     scene.add_light(Light::new(
-        Color::from("#FFF"),
+        Color::from("#BBB"),
         p(80.0, 80.0, 50.0)));
 
     let image = scene.render();

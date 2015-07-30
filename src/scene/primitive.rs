@@ -2,16 +2,16 @@ use geom::shape::Shape;
 use color::Color;
 
 
-pub struct Object {
+pub struct Primitive {
     shape: Box<Shape>,
     color: Color,
 }
 
-impl Object {
-    pub fn new<S>(shape: S, color: Color) -> Object
+impl Primitive {
+    pub fn new<S>(shape: S, color: Color) -> Primitive
         where S: Shape + 'static {
 
-        Object {
+        Primitive {
             shape: Box::new(shape),
             color: color
         }

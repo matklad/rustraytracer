@@ -77,7 +77,8 @@ impl Div<f64> for Vector {
     type Output = Vector;
 
     fn div(self, c: f64) -> Vector {
-        Vector::new(self.x / c, self.y / c, self.z / c)
+        let r = 1.0 / c;
+        Vector::new(self.x * r, self.y * r, self.z * r)
     }
 }
 
