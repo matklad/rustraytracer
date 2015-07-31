@@ -5,7 +5,6 @@ use super::Pixel;
 
 struct Screen {
     center: Point,
-    pub resolution: Pixel,
     basis: [Vector; 2],
 }
 
@@ -20,7 +19,6 @@ pub struct CameraConfig {
     pub focus_distance: f64,
     pub up: UnitVector,
 
-    pub resolution: Pixel,
     pub size: [f64; 2],
 }
 
@@ -33,7 +31,6 @@ impl Default for CameraConfig {
             look_at: p(0.0, 0.0, 0.0),
             focus_distance: 20.0,
             up: v(0.0, 0.0, 1.0).direction(),
-            resolution: [640, 480],
             size: [6.4, 4.8]
         }
     }
@@ -47,7 +44,6 @@ impl Camera {
         let up = right.cross(ray_to_scren.direction).direction();
         let screen = Screen {
             center: screen_center,
-            resolution: config.resolution,
             basis: [right * config.size[0], -up * config.size[1]],
         };
         Camera {
@@ -56,14 +52,10 @@ impl Camera {
         }
     }
 
-    pub fn resolution(&self) -> Pixel {
-        self.screen.resolution
-    }
-
-    pub fn cast_ray(&self, pixel: Pixel) -> Ray {
+    pub fn cast_ray(&self, resolution: Pixel, pixel: Pixel) -> Ray {
         let mut relative = [0.0, 0.0];
         for i in 0..2 {
-            let res = self.screen.resolution[i];
+            let res = resolution[i];
             assert!(pixel[i] < res);
             let pixel_width = 1.0 / (res as f64);
             relative[i] = (((pixel[i] as f64) + 0.5) * pixel_width) - 0.5;
@@ -90,7 +82,6 @@ mod tests {
             look_at: p(0.0, 0.0, 0.0),
             focus_distance: 10.0,
             up: v(0.0, 0.0, 1.0).direction(),
-            resolution: [640, 480],
             size: [6.4, 4.8],
             ..Default::default()
         };
@@ -98,7 +89,7 @@ mod tests {
         check_prop2(|x: u32, y: u32| {
             let x = x % 640;
             let y = y % 480;
-            let ray = cam.cast_ray([x, y]);
+            let ray = cam.cast_ray([640, 480], [x, y]);
             let p = ray.along(10.0);
             assert!(-1.0 < p.x() && p.x() < 0.0);
 

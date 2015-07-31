@@ -1,11 +1,10 @@
-use super::{SceneConfig, Image};
 use color::Color;
-use super::camera::CameraConfig;
-use super::image::new_image;
+use super::Image;
+use super::image::{new_image, Pixel};
 
 pub trait Filter {
-    fn process_config(&self, config: SceneConfig) -> SceneConfig {
-        config
+    fn process_resolution(&self, r: Pixel) -> Pixel {
+        r
     }
 
     fn process_image(&self, image: Image) -> Image {
@@ -25,16 +24,8 @@ impl SmoothingFilter {
 }
 
 impl Filter for SmoothingFilter {
-    fn process_config(&self, config: SceneConfig) -> SceneConfig {
-        let resolution = [config.camera.resolution[0] * self.x(),
-                          config.camera.resolution[1] * self.x()];
-        SceneConfig {
-            camera: CameraConfig {
-                resolution: resolution,
-                ..config.camera
-            },
-            ..config
-        }
+    fn process_resolution(&self, r: Pixel) -> Pixel {
+        [r[0] * self.x(), r[1] * self.x()]
     }
 
     fn process_image(&self, image: Image) -> Image {
