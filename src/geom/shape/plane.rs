@@ -59,7 +59,7 @@ mod test {
             let intersection = plane.intersect(&ray);
             match intersection {
                 None => assert!(x < 0.0),
-                Some(i) => assert!(i.point.x().abs() < 1e-6)
+                Some(i) => assert!(i.point[0].abs() < 1e-6)
             }
         })
     }

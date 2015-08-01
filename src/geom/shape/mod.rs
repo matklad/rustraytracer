@@ -6,6 +6,7 @@ mod mesh;
 mod plane;
 mod sphere;
 mod triangle;
+mod bound_box;
 
 pub use self::mesh::Mesh;
 pub use self::plane::Plane;

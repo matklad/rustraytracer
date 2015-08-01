@@ -1,7 +1,7 @@
 extern crate rand;
-use std::ops::{Add, Sub};
+use std::ops::{Add, Sub, Index};
 use std::fmt;
-use geom::{Vector, UnitVector};
+use geom::{Vector, UnitVector, Axis};
 
 
 #[derive(Debug, Clone, Copy)]
@@ -16,6 +16,13 @@ impl Point {
 
     pub fn direction_to(self, target: Point) -> UnitVector {
         (target - self).direction()
+    }
+}
+
+impl Index<Axis> for Point {
+    type Output = f64;
+    fn index(&self, a: Axis) -> &f64 {
+        &self.radius_vector[a]
     }
 }
 

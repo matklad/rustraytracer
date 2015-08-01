@@ -91,10 +91,10 @@ mod tests {
             let y = y % 480;
             let ray = cam.cast_ray([640, 480], [x, y]);
             let p = ray.along(10.0);
-            assert!(-1.0 < p.x() && p.x() < 0.0);
+            assert!(-1.0 < p[0] && p[0] < 0.0);
 
-            let x = p.y();
-            let y = p.z();
+            let x = p[1];
+            let y = p[2];
             assert!(-3.2 < x && x < 3.2);
             assert!(-2.4 < y && y < 2.4);
         })

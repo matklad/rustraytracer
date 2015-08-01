@@ -6,6 +6,9 @@ pub mod shape;
 pub use self::vector::{Vector, UnitVector};
 pub use self::point::{Point};
 
+pub type Axis = u8;
+
+
 pub mod shortcuts {
     use super::vector::{Vector};
     use super::point::{Point};

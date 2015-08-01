@@ -1,13 +1,17 @@
+mod bvh;
+
 use std::fmt;
 use std::error::Error;
 use std::io;
 
 use geom::{Point, UnitVector, Vector};
 use geom::ray::Ray;
+use super::bound_box::{BoundBox, Bound};
 use super::{Triangle, Shape, Intersection};
+use self::bvh::Bvh;
 
 pub struct Mesh {
-    triangles: Vec<Triangle>
+    index: Bvh<Triangle>
 }
 
 #[derive(Debug)]
@@ -28,7 +32,7 @@ impl fmt::Display for ParseObjError {
 impl Mesh {
     pub fn new(triangles: Vec<Triangle>) -> Mesh {
         Mesh {
-            triangles: triangles
+            index: Bvh::new(triangles)
         }
     }
 
@@ -46,10 +50,7 @@ impl Mesh {
 
 impl Shape for Mesh {
     fn intersect(&self, ray: &Ray) -> Option<Intersection> {
-        self.triangles
-            .iter()
-            .filter_map(|t| t.intersect(ray))
-            .min()
+        self.index.intersect(ray)
     }
 }
 

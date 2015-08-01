@@ -1,6 +1,7 @@
 use geom::{Point, UnitVector, Vector, Cross, Dot};
 use geom::ray::Ray;
 use super::{Shape, Intersection};
+use super::bound_box::{Bound, BoundBox};
 
 pub struct Triangle {
     a: Point,
@@ -53,6 +54,16 @@ impl Triangle {
                 gamma * self.normals[0]).direction()
     }
 }
+
+
+impl Bound for Triangle {
+    fn bound(&self) -> BoundBox {
+        self.a.bound()
+            .union(&(self.a + self.ab).bound())
+            .union(&(self.a + self.ac).bound())
+    }
+}
+
 
 impl Shape for Triangle {
     fn intersect(&self, ray: &Ray) -> Option<Intersection> {

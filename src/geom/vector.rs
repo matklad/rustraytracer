@@ -1,9 +1,9 @@
 extern crate rand;
 
-use std::ops::{Add, Sub, Div, Mul, Neg};
+use std::ops::{Add, Sub, Div, Mul, Neg, Index};
 use std::fmt;
 
-use super::{Cross, Dot};
+use super::{Cross, Dot, Axis};
 
 
 #[derive(Debug, Clone, Copy)]
@@ -35,6 +35,19 @@ impl Vector {
          UnitVector { direction: self / self.length() }
     }
 }
+
+impl Index<Axis> for Vector {
+    type Output = f64;
+    fn index(&self, a: Axis) -> &f64 {
+        match a {
+            0 => &self.x,
+            1 => &self.y,
+            2 => &self.z,
+            _ => panic!()
+        }
+    }
+}
+
 
 impl fmt::Display for Vector {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -110,6 +123,15 @@ impl UnitVector {
         (self.direction + 2.0f64 * axis).direction()
     }
 }
+
+impl Index<Axis> for UnitVector {
+    type Output = f64;
+
+    fn index(&self, a: Axis) -> &f64 {
+        &self.direction[a]
+    }
+}
+
 
 impl fmt::Display for UnitVector {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
