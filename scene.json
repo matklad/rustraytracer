@@ -15,7 +15,7 @@
     ],
     "lights": [
         {"position": [80, 80, 50],
-         "color": "BBB"}
+         "color": "#BBB"}
     ]
 
 }

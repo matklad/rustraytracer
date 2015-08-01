@@ -2,7 +2,8 @@ use geom::{UnitVector, Dot};
 use geom::shape::Intersection;
 use color::Color;
 
-use super::{Scene, Image, Light};
+use super::{Scene, Image};
+use super::light::Light;
 use super::primitive::Primitive;
 use super::filters::Filter;
 use super::image::{new_image, Pixel};

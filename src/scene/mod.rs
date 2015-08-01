@@ -9,8 +9,6 @@ mod renderer;
 
 use std::str::FromStr;
 use std::error::Error;
-// use std::fmt;
-// use std::fs;
 use std::{io, fs, fmt};
 
 use geom::{Point, Vector, UnitVector};
@@ -19,10 +17,10 @@ use geom::ray::{Ray};
 use color::Color;
 use self::rustc_serialize::json::Json;
 use self::camera::{Camera, CameraConfig};
+use self::light::Light;
 use self::primitive::Primitive;
 
 pub use self::image::{Image, Pixel};
-pub use self::light::Light;
 pub use self::filters::{NopFilter, SmoothingFilter};
 pub use self::renderer::Renderer;
 
@@ -79,24 +77,27 @@ impl Scene {
         let background_color = try!(data.find("background").and_then(read_color)
                                     .ok_or(error("wrong background")));
 
-        let p = try!(data.find("primitives")
-                              .and_then(Json::as_array)
-                              .map(|a| a.iter().map(read_primitive)
-                                   .collect::<Result<Vec<Primitive>, _>>())
-                              .ok_or(error("wrong primitives")));
-        let primitives = try!(p);
+        let ps = try!(data.find("primitives")
+                     .and_then(Json::as_array)
+                     .ok_or(error("wrong primitives")));
+
+        let primitives = try!(ps.iter().map(read_primitive)
+                              .collect::<Result<Vec<Primitive>, _>>());
+
+        let ls = try!(data.find("lights")
+                      .and_then(Json::as_array)
+                      .ok_or(error("wrong lights")));
+
+        let lights = try!(ls.iter().map(read_light)
+                          .collect::<Result<Vec<_>, _>>());
 
         Ok(Scene {
             camera: camera,
             ambient_light: ambient_light,
             background_color: background_color,
             primitives: primitives,
-            lights: Vec::new(),
+            lights: lights,
         })
-    }
-
-    pub fn add_light(&mut self, light: Light) {
-        self.lights.push(light);
     }
 
     fn find_obstacle(&self, ray: &Ray) -> Option<(&Primitive, Intersection)> {
@@ -187,4 +188,10 @@ fn read_primitive(data: &Json) -> Result<Primitive, Box<Error>> {
     } else {
         Err(Box::new(error("bad primitive")))
     }
+}
+
+fn read_light(data: &Json) -> Result<Light, Box<Error>> {
+    let position = try!(data.find("position").and_then(read_point).ok_or(error("bad light")));
+    let color = try!(data.find("color").and_then(read_color).ok_or(error("bad light")));
+    Ok(Light::new(color, position))
 }
