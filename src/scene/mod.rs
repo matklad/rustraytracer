@@ -8,14 +8,19 @@ mod filters;
 mod renderer;
 
 use std::str::FromStr;
+use std::error::Error;
+// use std::fmt;
+// use std::fs;
+use std::{io, fs, fmt};
+
 use geom::{Point, Vector, UnitVector};
-use geom::shape::{Shape, Intersection};
+use geom::shape::{Shape, Intersection, Mesh};
 use geom::ray::{Ray};
 use color::Color;
 use self::rustc_serialize::json::Json;
 use self::camera::{Camera, CameraConfig};
+use self::primitive::Primitive;
 
-pub use self::primitive::Primitive;
 pub use self::image::{Image, Pixel};
 pub use self::light::Light;
 pub use self::filters::{NopFilter, SmoothingFilter};
@@ -35,6 +40,26 @@ pub struct SceneConfig {
     pub ambient_light: Color,
 }
 
+#[derive(Debug)]
+pub struct ParseError(String);
+
+fn error(s: &str) -> ParseError {
+    ParseError(s.to_string())
+}
+
+impl Error for ParseError {
+    fn description(&self) -> &str {
+        &self.0
+    }
+}
+
+impl fmt::Display for ParseError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.description().fmt(f)
+    }
+}
+
+
 impl Scene {
     pub fn new(config: SceneConfig) -> Scene {
         Scene {
@@ -46,25 +71,28 @@ impl Scene {
         }
     }
 
-    pub fn from_json(data: Json) -> Result<Scene, String> {
-        let conf = try!(data.find("camera").ok_or("wrong camera"));
+    pub fn from_json(data: Json) -> Result<Scene, Box<Error>> {
+        let conf = try!(data.find("camera").ok_or(error("wrong camera")));
         let camera = try!(read_camera(conf));
         let ambient_light = try!(data.find("ambient_light").and_then(read_color)
-            .ok_or("wrong ambient"));
+                                 .ok_or(error("wrong ambient")));
         let background_color = try!(data.find("background").and_then(read_color)
-            .ok_or("wrong background"));
+                                    .ok_or(error("wrong background")));
+
+        let p = try!(data.find("primitives")
+                              .and_then(Json::as_array)
+                              .map(|a| a.iter().map(read_primitive)
+                                   .collect::<Result<Vec<Primitive>, _>>())
+                              .ok_or(error("wrong primitives")));
+        let primitives = try!(p);
 
         Ok(Scene {
             camera: camera,
             ambient_light: ambient_light,
             background_color: background_color,
-            primitives: Vec::new(),
+            primitives: primitives,
             lights: Vec::new(),
         })
-    }
-
-    pub fn add_primitive(&mut self, primitive: Primitive) {
-        self.primitives.push(primitive);
     }
 
     pub fn add_light(&mut self, light: Light) {
@@ -93,17 +121,17 @@ impl Scene {
     }
 }
 
-fn read_camera(data: &Json) -> Result<Camera, String> {
+fn read_camera(data: &Json) -> Result<Camera, Box<Error>> {
     let position = try!(data.find("position").and_then(read_point)
-                        .ok_or("wrong position"));
+                        .ok_or(error("wrong position")));
     let look_at = try!(data.find("look_at").and_then(read_point)
-                       .ok_or("wrong look_at"));
+                       .ok_or(error("wrong look_at")));
     let focus_distance = try!(data.find("focus_distance").and_then(Json::as_f64)
-                              .ok_or("wrong focus_distance"));
+                              .ok_or(error("wrong focus_distance")));
     let up = try!(data.find("up").and_then(read_direction)
-                  .ok_or("wrong up"));
+                  .ok_or(error("wrong up")));
     let size = try!(data.find("size").and_then(read_dimention)
-                    .ok_or("wrong size"));
+                    .ok_or(error("wrong size")));
     Ok(Camera::new(CameraConfig {
         position: position,
         look_at: look_at,
@@ -140,4 +168,23 @@ fn read_dimention(data: &Json) -> Option<[f64; 2]> {
     data.as_array()
         .and_then(|a| a.iter().map(Json::as_f64).collect::<Option<Vec<f64>>>())
         .and_then(|d| if d.len() != 2 {None} else {Some([d[0], d[1]])})
+}
+
+fn read_primitive(data: &Json) -> Result<Primitive, Box<Error>> {
+    let t = try!(data.find("type")
+                 .and_then(Json::as_string)
+                 .ok_or(error("bad primitive")));
+    if t == "mesh" {
+        let location = try!(data.find("location").and_then(Json::as_string)
+            .ok_or(error("bad primitive")));
+        let color = try!(data.find("color").and_then(read_color)
+            .ok_or(error("bad primitive")));
+
+        let mut file = try!(fs::File::open(&location).map(io::BufReader::new));
+        let mesh = try!(Mesh::from_obj(&mut file));
+
+        Ok(Primitive::new(mesh, color))
+    } else {
+        Err(Box::new(error("bad primitive")))
+    }
 }
