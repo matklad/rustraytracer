@@ -1,0 +1,21 @@
+{
+    "camera": {
+        "position": [0, 40, 90],
+        "look_at": [0, 0, 0],
+        "focus_distance": 80,
+        "up": [0, 0, -1],
+        "size": [40, 30]
+    },
+    "ambient_light": "#444",
+    "background": "#115",
+    "primitives": [
+        {"type": "mesh",
+         "location": "./utah.obj",
+         "color": "#444"}
+    ],
+    "lights": [
+        {"position": [80, 80, 50],
+         "color": "BBB"}
+    ]
+
+}

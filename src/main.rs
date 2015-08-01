@@ -1,40 +1,33 @@
 extern crate rustraytracer;
+extern crate rustc_serialize;
 
 use std::fs;
 use std::io;
+use std::io::{Read};
+use std::str::FromStr;
 
+use rustc_serialize::json::Json;
 use rustraytracer::color::Color;
 use rustraytracer::display::{PpmWriter, ImageDisplay};
 use rustraytracer::geom::shape::{Mesh};
-use rustraytracer::geom::shortcuts::{p, v};
-use rustraytracer::scene::{Scene, SceneConfig, CameraConfig, Light,
-                           SmoothingFilter, Primitive, Renderer};
+use rustraytracer::geom::shortcuts::p;
+use rustraytracer::scene::{Scene, Light, SmoothingFilter, Primitive, Renderer};
 
 
 #[cfg_attr(test, allow(dead_code))]
 fn main() {
-    let mut scene = Scene::new(
-        SceneConfig {
-            camera: CameraConfig {
-                position: p(0.0, 40.0, 90.0),
-                focus_distance: 80.0,
-                up: v(0.0, 0.0, -1.0).direction(),
-                size: [40.0, 30.0],
-                ..Default::default()
-            },
-            ambient_light: Color::from("#444"),
-            background: Color::from("#115"),
-        },
-    );
 
+    let mut scene_json = String::new();
+    fs::File::open("./scene.json").unwrap().read_to_string(&mut scene_json).unwrap();
+    let mut scene = Scene::from_json(Json::from_str(&scene_json).unwrap()).unwrap();
 
     let mut teapot = io::BufReader::new(fs::File::open("./utah.obj").unwrap());
     let mesh = Mesh::from_obj(&mut teapot).unwrap();
 
-    let prim = Primitive::new(mesh, Color::from("#444"));
+    let prim = Primitive::new(mesh, Color::from_str("#444").unwrap());
     scene.add_primitive(prim);
     scene.add_light(Light::new(
-        Color::from("#BBB"),
+        Color::from_str("#BBB").unwrap(),
         p(80.0, 80.0, 50.0)));
 
     let renderer = Renderer::new(scene, [640, 480], SmoothingFilter(1));

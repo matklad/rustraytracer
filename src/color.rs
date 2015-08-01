@@ -1,4 +1,5 @@
 use std::ops::{Mul, Add, Div};
+use std::str::FromStr;
 
 
 #[derive(Debug, Clone, Copy)]
@@ -52,19 +53,38 @@ impl Add for Color {
     }
 }
 
-impl From<&'static str> for Color {
-    fn from(s: &str) -> Color {
-        assert!(s.len() ==  4 || s.len() == 7);
-        assert!(s.starts_with("#"));
+impl FromStr for Color {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Color, String> {
+        if !(s.len() ==  4 || s.len() == 7) {
+            return Err("wrong length".to_string());
+        }
+        if !(s.starts_with("#")) {
+            return Err("should start with #".to_string());
+        }
         let p = if s.len() == 4 {1} else {2};
-        let parts = (0..3)
+        let digits: Result<Vec<_>, _> = (0..3)
             .map(|i| (1 + i*p, 1 + (i + 1)*p))
             .map(|(l, r)| &s[l..r])
-            .map(|s| u8::from_str_radix(s, 16).unwrap())
-            .map(|i| if p == 1 {i * 17} else {i})
-            .map(|i| i as f64 / 255.0)
-            .collect::<Vec<_>>();
-        Color::new(parts[0], parts[1], parts[2])
+            .map(|s| u8::from_str_radix(s, 16))
+            .collect();
+
+        match digits {
+            Err(_) => Err("bad digits".to_string()),
+            Ok(v) => {
+                let parts = v.iter().map(|&i| if p == 1 {i * 17} else {i})
+                    .map(|i| i as f64 / 255.0)
+                    .collect::<Vec<_>>();
+                Ok(Color::new(parts[0], parts[1], parts[2]))
+            }
+        }
+    }
+}
+
+impl From<&'static str> for Color {
+    fn from(s: &'static str) -> Color {
+        Color::from_str(s).unwrap()
     }
 }
 
