@@ -12,7 +12,7 @@ use std::error::Error;
 use std::{io, fs, fmt};
 
 use geom::{Point, Vector, UnitVector};
-use geom::shape::{Shape, Intersection, Mesh};
+use geom::shape::{Shape, Intersection, Mesh, Plane};
 use geom::ray::{Ray};
 use color::Color;
 use self::rustc_serialize::json::Json;
@@ -177,14 +177,23 @@ fn read_primitive(data: &Json) -> Result<Primitive, Box<Error>> {
                  .ok_or(error("bad primitive")));
     if t == "mesh" {
         let location = try!(data.find("location").and_then(Json::as_string)
-            .ok_or(error("bad primitive")));
+                            .ok_or(error("bad primitive")));
         let color = try!(data.find("color").and_then(read_color)
-            .ok_or(error("bad primitive")));
+                         .ok_or(error("bad primitive")));
 
         let mut file = try!(fs::File::open(&location).map(io::BufReader::new));
         let mesh = try!(Mesh::from_obj(&mut file));
 
         Ok(Primitive::new(mesh, color))
+    } else if t == "plane" {
+        let position = try!(data.find("position").and_then(read_point)
+                           .ok_or(error("bad primitive")));
+        let normal = try!(data.find("normal").and_then(read_direction)
+                          .ok_or(error("bad primitive")));
+        let color = try!(data.find("color").and_then(read_color)
+                         .ok_or(error("bad primitive")));
+
+        Ok(Primitive::new(Plane::new(position, normal), color))
     } else {
         Err(Box::new(error("bad primitive")))
     }

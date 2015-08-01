@@ -11,7 +11,11 @@
     "primitives": [
         {"type": "mesh",
          "location": "./utah.obj",
-         "color": "#444"}
+         "color": "#444"},
+        {"type": "plane",
+         "position": [0, -8, 0],
+         "normal": [0, 1, 0],
+         "color": "#811"}
     ],
     "lights": [
         {"position": [80, 80, 50],
