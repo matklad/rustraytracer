@@ -1,7 +1,7 @@
 extern crate rand;
 
 
-const N_CHECKS: i32 = 100;
+const N_CHECKS: i32 = 500;
 
 
 pub fn check_prop2<A, B, F>(mut prop: F)

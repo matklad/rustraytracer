@@ -3,6 +3,7 @@ use geom::ray::Ray;
 use super::{Shape, Intersection};
 use super::bound_box::{Bound, BoundBox};
 
+#[derive(Debug)]
 pub struct Triangle {
     a: Point,
     ab: Vector,
@@ -56,15 +57,6 @@ impl Triangle {
 }
 
 
-impl Bound for Triangle {
-    fn bound(&self) -> BoundBox {
-        self.a.bound()
-            .union(&(self.a + self.ab).bound())
-            .union(&(self.a + self.ac).bound())
-    }
-}
-
-
 impl Shape for Triangle {
     fn intersect(&self, ray: &Ray) -> Option<Intersection> {
         // a + alpha ab + beta ac = ray.origin + t * ray.direction
@@ -85,15 +77,25 @@ impl Shape for Triangle {
             None
         }
     }
+}
 
 
+impl Bound for Triangle {
+    fn bound(&self) -> BoundBox {
+        self.a.bound()
+            .union(&(self.a + self.ab).bound())
+            .union(&(self.a + self.ac).bound())
+    }
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
-    use geom::shape::Shape;
+    use geom::shape::{Shape, Intersection};
+    use geom::shape::bound_box::Bound;
+
     use geom::shortcuts::p;
+    use geom::Vector;
     use geom::ray::Ray;
     use props::check_prop2;
 
@@ -129,5 +131,45 @@ mod test {
 
         assert!(t1_hits > 10);
         assert!(t2_hits > 10);
+    }
+
+    #[test]
+    fn triangle_bounding_box() {
+
+        let mut hits = 0;
+        let mut misshits = 0;
+        let mut missmisses = 0;
+
+        check_prop2(|(v1, v2, v3): (Vector, Vector, Vector), (o, y, z): (f64, f64, f64)| {
+            let v1 = v1 / v1.length();
+            let v2 = v2 / v2.length();
+            let v3 = v3 / v3.length();
+            let target = Triangle::new(
+                p(v1.x, v1.y, v1.z),
+                p(v2.x, v2.y, v2.z),
+                p(v3.x, v3.y, v3.z));
+
+            let y = y % 1.0;
+            let z = z % 1.0;
+            let o = o % 3.0;
+            let origin = p(o, 0.0, 0.0);
+
+            let ray = Ray::from_to(origin, p(0.0, y, z));
+            if let Some(Intersection {t, ..}) = target.intersect(&ray) {
+                assert!(target.bound().is_intersected(&ray, t + 0.001));
+                hits += 1;
+            } else {
+                if target.bound().is_intersected(&ray, 1000.0) {
+                    misshits += 1;
+                } else {
+                    missmisses += 1;
+                }
+            }
+
+        });
+
+        assert!(hits > 1);
+        assert!(missmisses > 1);
+        assert!(misshits > 1);
     }
 }

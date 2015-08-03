@@ -22,7 +22,7 @@ enum Node<T: BoundedShape> {
 
 
 impl<T: BoundedShape> Node<T> {
-    fn interior(l: Box<Node<T>>, r: Box<Node<T>>, axis: Axis) -> Node<T> {
+    fn interior(l: Box<Node<T>>, r: Box<Node<T>>, _axis: Axis) -> Node<T> {
         let bound = l.bound().union(&r.bound());
         Node::Interior {
             children: [l, r],
@@ -98,11 +98,12 @@ impl<T: BoundedShape> Bvh<T>  {
 
             match node {
                 &Node::Leaf {ref shape} => if let Some(i) = shape.intersect(ray) {
-                    match result {
-                        None => {result = Some(i)},
-                        Some(j) => {result = Some(min(i, j))}
+                    let new_result = match result {
+                        None => i,
+                        Some(j) => min(i, j)
                     };
-                    t_bound = t_bound.min(i.t);
+                    t_bound = t_bound.min(new_result.t);
+                    result = Some(new_result);
                 },
                 &Node::Interior {ref children, ..} => {
                     todo.push(&children[0]);

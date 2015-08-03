@@ -52,8 +52,10 @@ impl BoundBox {
         let mut min_t: f64 = 0.0;
         for axis in (0..3) {
             let inv_dir = 1.0 / ray.direction[axis];
-            let t_near = (self.p_min[axis] - ray.origin[axis]) * inv_dir;
-            let t_far = (self.p_min[axis] - ray.origin[axis]) * inv_dir;
+            let t1 = (self.p_min[axis] - ray.origin[axis]) * inv_dir;
+            let t2 = (self.p_max[axis] - ray.origin[axis]) * inv_dir;
+            let t_near = t1.min(t2);
+            let t_far = t1.max(t2);
             min_t = min_t.max(t_near);
             max_t = max_t.min(t_far);
             assert!(!min_t.is_nan());
