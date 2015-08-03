@@ -1,13 +1,11 @@
 mod bvh;
 mod obj_parser;
 
-use std::fmt;
+
 use std::error::Error;
 use std::io;
 
-use geom::{Point, UnitVector, Vector};
 use geom::ray::Ray;
-use super::bound_box::{BoundBox, Bound};
 use super::{Triangle, Shape, Intersection};
 use self::bvh::Bvh;
 use self::obj_parser::ObjParser;

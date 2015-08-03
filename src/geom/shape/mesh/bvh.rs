@@ -1,3 +1,4 @@
+use std::f64;
 use std::iter::{IntoIterator};
 use std::cmp::min;
 
@@ -14,7 +15,7 @@ enum Node<T: BoundedShape> {
     Leaf {shape: T},
     Interior {
         children: [Box<Node<T>>; 2],
-        axis: Axis,
+        // axis: Axis,
         bound: BoundBox,
     }
 }
@@ -25,7 +26,7 @@ impl<T: BoundedShape> Node<T> {
         let bound = l.bound().union(&r.bound());
         Node::Interior {
             children: [l, r],
-            axis: axis,
+            // axis: axis,
             bound: bound
         }
     }
@@ -87,15 +88,21 @@ impl<T: BoundedShape> Bvh<T>  {
     pub fn intersect(&self, ray: &Ray) -> Option<Intersection> {
         let mut todo = Vec::with_capacity(64);
         let mut result = None;
+        let mut t_bound = f64::INFINITY;
 
         todo.push(&self.root);
         while let Some(node) = todo.pop() {
+            if !node.bound().is_intersected(ray, t_bound) {
+                continue;
+            }
+
             match node {
                 &Node::Leaf {ref shape} => if let Some(i) = shape.intersect(ray) {
                     match result {
                         None => {result = Some(i)},
                         Some(j) => {result = Some(min(i, j))}
-                    }
+                    };
+                    t_bound = t_bound.min(i.t);
                 },
                 &Node::Interior {ref children, ..} => {
                     todo.push(&children[0]);

@@ -29,7 +29,7 @@ impl BoundBox {
 
         BoundBox {
             p_min: pmap(f64::min, &self.p_min, &rhs.p_min),
-            p_max: pmap(f64::max, &self.p_min, &rhs.p_min)
+            p_max: pmap(f64::max, &self.p_max, &rhs.p_max)
         }
     }
 
