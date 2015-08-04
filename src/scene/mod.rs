@@ -1,10 +1,11 @@
 extern crate rustc_serialize;
 
-mod primitive;
 mod camera;
+mod filters;
 mod image;
 mod light;
-mod filters;
+mod material;
+mod primitive;
 mod renderer;
 
 use std::str::FromStr;
@@ -19,6 +20,7 @@ use self::rustc_serialize::json::Json;
 use self::camera::{Camera, CameraConfig};
 use self::light::Light;
 use self::primitive::Primitive;
+use self::material::Material;
 
 pub use self::image::{Image, Pixel};
 pub use self::filters::{NopFilter, SmoothingFilter};
@@ -103,7 +105,7 @@ impl Scene {
     fn find_obstacle(&self, ray: &Ray) -> Option<(&Primitive, Intersection)> {
         let mut result = None;
         for obj in self.primitives.iter() {
-            if let Some(intersection) = obj.shape().intersect(&ray) {
+            if let Some(intersection) = obj.shape.intersect(&ray) {
                 result = match result {
                     None => Some((obj, intersection)),
                     Some(previous) if intersection < previous.1 => Some((obj, intersection)),
@@ -184,7 +186,7 @@ fn read_primitive(data: &Json) -> Result<Primitive, Box<Error>> {
         let mut file = try!(fs::File::open(&location).map(io::BufReader::new));
         let mesh = try!(Mesh::from_obj(&mut file));
 
-        Ok(Primitive::new(mesh, color))
+        Ok(Primitive::new(mesh, Material {color: color, diffuse: 0.9, specular: 4.0}))
     } else if t == "plane" {
         let position = try!(data.find("position").and_then(read_point)
                            .ok_or(error("bad primitive")));
@@ -193,7 +195,8 @@ fn read_primitive(data: &Json) -> Result<Primitive, Box<Error>> {
         let color = try!(data.find("color").and_then(read_color)
                          .ok_or(error("bad primitive")));
 
-        Ok(Primitive::new(Plane::new(position, normal), color))
+        Ok(Primitive::new(Plane::new(position, normal),
+                          Material {color: color, diffuse: 0.9, specular: 4.0}))
     } else {
         Err(Box::new(error("bad primitive")))
     }

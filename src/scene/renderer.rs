@@ -68,13 +68,13 @@ trait ColoredPrimitive {
 
 impl ColoredPrimitive for Primitive {
     fn colorize_ambient(&self, ambient: Color) -> Color {
-        self.color() * ambient
+        self.material.color * ambient
     }
 
     fn colorize_diffuse(&self, light: &Light, light_direction: UnitVector,
                         normal: UnitVector) -> Color {
-        let k = (-light_direction.dot(normal)).max(0.0) * 0.9;
-        self.color() * light.color() * k
+        let k = (-light_direction.dot(normal)).max(0.0) * self.material.diffuse;
+        self.material.color * light.color() * k
     }
 
     fn colorize_specular(&self,  view_direction: UnitVector,
@@ -82,7 +82,7 @@ impl ColoredPrimitive for Primitive {
                          normal: UnitVector) -> Color {
 
         let r = light_direction.reflect(normal);
-        let k = (-r.dot(view_direction)).max(0.0).powf(4.0f64);
+        let k = (-r.dot(view_direction)).max(0.0).powf(self.material.specular);
         light.color() * k
     }
 }

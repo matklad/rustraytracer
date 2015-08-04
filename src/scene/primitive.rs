@@ -1,27 +1,19 @@
 use geom::shape::Shape;
-use color::Color;
 
+use super::material::Material;
 
 pub struct Primitive {
-    shape: Box<Shape>,
-    color: Color,
+    pub shape: Box<Shape>,
+    pub material: Material
 }
 
 impl Primitive {
-    pub fn new<S>(shape: S, color: Color) -> Primitive
+    pub fn new<S>(shape: S, material: Material) -> Primitive
         where S: Shape + 'static {
 
         Primitive {
             shape: Box::new(shape),
-            color: color
+            material: material
         }
-    }
-
-    pub fn shape(&self) -> &Shape {
-        &*self.shape
-    }
-
-    pub fn color(&self) -> Color {
-        self.color
     }
 }
