@@ -13,6 +13,7 @@ pub struct Camera {
     screen: Screen,
 }
 
+#[derive(RustcDecodable)]
 pub struct CameraConfig {
     pub position: Point,
     pub look_at: Point,

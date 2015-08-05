@@ -1,5 +1,3 @@
-extern crate rustc_serialize;
-
 mod camera;
 mod filters;
 mod image;
@@ -12,12 +10,13 @@ use std::str::FromStr;
 use std::error::Error;
 use std::{io, fs, fmt};
 
+use rustc_serialize::json::{self, Json};
+
 use geom::{Point, Vector, UnitVector};
 use geom::shape::{Shape, Intersection, Mesh, Plane};
 use geom::ray::{Ray};
 use color::Color;
-use self::rustc_serialize::json::Json;
-use self::camera::{Camera, CameraConfig};
+use self::camera::Camera ;
 use self::light::Light;
 use self::primitive::Primitive;
 use self::material::Material;
@@ -34,11 +33,6 @@ pub struct Scene {
     lights: Vec<Light>,
 }
 
-pub struct SceneConfig {
-    pub camera: CameraConfig,
-    pub background: Color,
-    pub ambient_light: Color,
-}
 
 #[derive(Debug)]
 pub struct ParseError(String);
@@ -61,15 +55,6 @@ impl fmt::Display for ParseError {
 
 
 impl Scene {
-    pub fn new(config: SceneConfig) -> Scene {
-        Scene {
-            camera: Camera::new(config.camera),
-            ambient_light: config.ambient_light,
-            background_color: config.background,
-            primitives: Vec::new(),
-            lights: Vec::new(),
-        }
-    }
 
     pub fn from_json(data: Json) -> Result<Scene, Box<Error>> {
         let conf = try!(data.find("camera").ok_or(error("wrong camera")));
@@ -125,23 +110,27 @@ impl Scene {
 }
 
 fn read_camera(data: &Json) -> Result<Camera, Box<Error>> {
-    let position = try!(data.find("position").and_then(read_point)
-                        .ok_or(error("wrong position")));
-    let look_at = try!(data.find("look_at").and_then(read_point)
-                       .ok_or(error("wrong look_at")));
-    let focus_distance = try!(data.find("focus_distance").and_then(Json::as_f64)
-                              .ok_or(error("wrong focus_distance")));
-    let up = try!(data.find("up").and_then(read_direction)
-                  .ok_or(error("wrong up")));
-    let size = try!(data.find("size").and_then(read_dimention)
-                    .ok_or(error("wrong size")));
-    Ok(Camera::new(CameraConfig {
-        position: position,
-        look_at: look_at,
-        focus_distance: focus_distance,
-        up: up,
-        size: size
-    }))
+    // let mut d = Json::Decoder::new(data);
+    // Decodable::decode(d)
+    let config = try!(json::decode(&data.to_string()));
+    Ok(Camera::new(config))
+    // let position = try!(data.find("position").and_then(read_point)
+    //                     .ok_or(error("wrong position")));
+    // let look_at = try!(data.find("look_at").and_then(read_point)
+    //                    .ok_or(error("wrong look_at")));
+    // let focus_distance = try!(data.find("focus_distance").and_then(Json::as_f64)
+    //                           .ok_or(error("wrong focus_distance")));
+    // let up = try!(data.find("up").and_then(read_direction)
+    //               .ok_or(error("wrong up")));
+    // let size = try!(data.find("size").and_then(read_dimention)
+    //                 .ok_or(error("wrong size")));
+    // Ok(Camera::new(CameraConfig {
+    //     position: position,
+    //     look_at: look_at,
+    //     focus_distance: focus_distance,
+    //     up: up,
+    //     size: size
+    // }))
 }
 
 fn read_coords(data: &Json) -> Option<[f64; 3]> {
@@ -165,12 +154,6 @@ fn read_direction(data: &Json) -> Option<UnitVector> {
 
 fn read_color(data: &Json) -> Option<Color> {
     data.as_string().and_then(|s| Color::from_str(s).ok())
-}
-
-fn read_dimention(data: &Json) -> Option<[f64; 2]> {
-    data.as_array()
-        .and_then(|a| a.iter().map(Json::as_f64).collect::<Option<Vec<f64>>>())
-        .and_then(|d| if d.len() != 2 {None} else {Some([d[0], d[1]])})
 }
 
 fn read_primitive(data: &Json) -> Result<Primitive, Box<Error>> {

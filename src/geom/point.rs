@@ -1,6 +1,8 @@
-extern crate rand;
 use std::ops::{Add, Sub, Index};
 use std::fmt;
+use rand;
+use rustc_serialize::{Decodable, Decoder};
+
 use geom::{Vector, UnitVector, Axis};
 
 
@@ -37,6 +39,15 @@ impl rand::Rand for Point {
         Point { radius_vector: Vector::rand(rng) }
     }
 }
+
+
+impl Decodable for Point {
+    fn decode<D: Decoder>(d: &mut D) -> Result<Point, D::Error> {
+        let radius_vector: Vector = try!(Decodable::decode(d));
+        Ok(Point {radius_vector: radius_vector})
+    }
+}
+
 
 impl Sub for Point {
     type Output = Vector;

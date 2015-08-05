@@ -1,4 +1,4 @@
-extern crate rand;
+use rand;
 
 
 const N_CHECKS: i32 = 500;

@@ -1,6 +1,8 @@
 use std::ops::{Mul, Add, Div};
 use std::str::FromStr;
 
+use rustc_serialize::{Decodable, Decoder};
+
 
 #[derive(Debug, Clone, Copy)]
 pub struct Color {
@@ -135,4 +137,11 @@ impl Rgb8Bit {
         }
     }
 
+}
+
+impl Decodable for Color {
+    fn decode<D: Decoder>(d: &mut D) -> Result<Color, D::Error> {
+        let s: String = try!(Decodable::decode(d));
+        Color::from_str(&s).map_err(|_| d.error("bad color"))
+    }
 }

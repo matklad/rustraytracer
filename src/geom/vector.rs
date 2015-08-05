@@ -1,7 +1,7 @@
-extern crate rand;
-
 use std::ops::{Add, Sub, Div, Mul, Neg, Index};
 use std::fmt;
+use rand;
+use rustc_serialize::{Decodable, Decoder};
 
 use super::{Cross, Dot, Axis};
 
@@ -62,6 +62,14 @@ impl rand::Rand for Vector {
     }
 }
 
+impl Decodable for Vector {
+    fn decode<D: Decoder>(d: &mut D) -> Result<Vector, D::Error> {
+        let c: (f64, f64, f64) = try!(Decodable::decode(d));
+        Ok(Vector::new(c.0, c.1, c.2))
+    }
+}
+
+
 impl Neg for Vector {
     type Output = Vector;
 
@@ -118,11 +126,13 @@ pub struct UnitVector {
     direction: Vector
 }
 
+
 impl UnitVector {
     pub fn reflect(self, axis: UnitVector) -> UnitVector {
         (self.direction + 2.0f64 * axis).direction()
     }
 }
+
 
 impl Index<Axis> for UnitVector {
     type Output = f64;
@@ -138,6 +148,15 @@ impl fmt::Display for UnitVector {
         self.direction.fmt(f)
     }
 }
+
+
+impl Decodable for UnitVector {
+    fn decode<D: Decoder>(d: &mut D) -> Result<UnitVector, D::Error> {
+        let v: Vector = try!(Decodable::decode(d));
+        Ok(v.direction())
+    }
+}
+
 
 impl Neg for UnitVector {
     type Output = UnitVector;
