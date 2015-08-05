@@ -10,7 +10,7 @@ use std::error::Error;
 use std::{io, fs, fmt};
 
 use rustc_serialize::json::{self, Json};
-use rustc_serialize::Decodable;
+use rustc_serialize::Decodable ;
 
 use geom::{Point, UnitVector};
 use geom::shape::{Shape, Intersection, Mesh, Plane};
@@ -37,8 +37,8 @@ pub struct Scene {
 #[derive(Debug)]
 pub struct ParseError(String);
 
-fn error(s: &str) -> ParseError {
-    ParseError(s.to_string())
+fn error(s: &str) -> Box<Error> {
+    Box::new(ParseError(s.to_string()))
 }
 
 impl Error for ParseError {
@@ -59,10 +59,10 @@ impl Scene {
     pub fn from_json(data: Json) -> Result<Scene, Box<Error>> {
         let conf = try!(data.find("camera").ok_or(error("wrong camera")));
         let camera = try!(read_camera(conf));
-        let ambient_light = try!(data.find("ambient_light").and_then(read::<Color>)
-                                 .ok_or(error("wrong ambient")));
-        let background_color = try!(data.find("background").and_then(read::<Color>)
-                                    .ok_or(error("wrong background")));
+        let ambient_light = try!(data.find("ambient_light").ok_or(error("wrong ambient"))
+                                 .and_then(read::<Color>));
+        let background_color = try!(data.find("background").ok_or(error("wrong background"))
+                                    .and_then(read::<Color>));
 
         let ps = try!(data.find("primitives")
                      .and_then(Json::as_array)
@@ -75,7 +75,7 @@ impl Scene {
                       .and_then(Json::as_array)
                       .ok_or(error("wrong lights")));
 
-        let lights = try!(ls.iter().map(read_light)
+        let lights = try!(ls.iter().map(read::<Light>)
                           .collect::<Result<Vec<_>, _>>());
 
         Ok(Scene {
@@ -110,8 +110,10 @@ impl Scene {
 }
 
 
-fn read<T: Decodable>(data: &Json) -> Option<T> {
-    json::decode(&data.to_string()).ok()
+fn read<T: Decodable>(data: &Json) -> Result<T, Box<Error>> {
+    let mut decoder = json::Decoder::new(data.clone());
+    let result = try!(Decodable::decode(&mut decoder));
+    Ok(result)
 }
 
 fn read_camera(data: &Json) -> Result<Camera, Box<Error>> {
@@ -126,29 +128,24 @@ fn read_primitive(data: &Json) -> Result<Primitive, Box<Error>> {
     if t == "mesh" {
         let location = try!(data.find("location").and_then(Json::as_string)
                             .ok_or(error("bad primitive")));
-        let color = try!(data.find("color").and_then(read::<Color>)
-                         .ok_or(error("bad primitive")));
+        let color = try!(data.find("color").ok_or(error("bad primitive"))
+                         .and_then(read::<Color>));
 
         let mut file = try!(fs::File::open(&location).map(io::BufReader::new));
         let mesh = try!(Mesh::from_obj(&mut file));
 
         Ok(Primitive::new(mesh, Material {color: color, diffuse: 0.9, specular: 4.0}))
     } else if t == "plane" {
-        let position = try!(data.find("position").and_then(read::<Point>)
-                           .ok_or(error("bad primitive")));
-        let normal = try!(data.find("normal").and_then(read::<UnitVector>)
-                          .ok_or(error("bad primitive")));
-        let color = try!(data.find("color").and_then(read::<Color>)
-                         .ok_or(error("bad primitive")));
+        let position = try!(data.find("position").ok_or(error("bad primitive"))
+                           .and_then(read::<Point>));
+        let normal = try!(data.find("normal").ok_or(error("bad primitive"))
+                          .and_then(read::<UnitVector>));
+        let color = try!(data.find("color").ok_or(error("bad primitive"))
+                         .and_then(read::<Color>));
 
         Ok(Primitive::new(Plane::new(position, normal),
                           Material {color: color, diffuse: 0.9, specular: 4.0}))
     } else {
-        Err(Box::new(error("bad primitive")))
+        Err(error("bad primitive"))
     }
-}
-
-fn read_light(data: &Json) -> Result<Light, Box<Error>> {
-    let light = try!(json::decode(&data.to_string()));
-    Ok(light)
 }
