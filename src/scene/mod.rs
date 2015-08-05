@@ -117,7 +117,7 @@ fn read<T: Decodable>(data: &Json) -> Result<T, Box<Error>> {
 }
 
 fn read_camera(data: &Json) -> Result<Camera, Box<Error>> {
-    let config = try!(json::decode(&data.to_string()));
+    let config = try!(read(data));
     Ok(Camera::new(config))
 }
 
@@ -128,23 +128,22 @@ fn read_primitive(data: &Json) -> Result<Primitive, Box<Error>> {
     if t == "mesh" {
         let location = try!(data.find("location").and_then(Json::as_string)
                             .ok_or(error("bad primitive")));
-        let color = try!(data.find("color").ok_or(error("bad primitive"))
-                         .and_then(read::<Color>));
+        let material = try!(data.find("material").ok_or(error("bad primitive"))
+                            .and_then(read::<Material>));
 
         let mut file = try!(fs::File::open(&location).map(io::BufReader::new));
         let mesh = try!(Mesh::from_obj(&mut file));
 
-        Ok(Primitive::new(mesh, Material {color: color, diffuse: 0.9, specular: 4.0}))
+        Ok(Primitive::new(mesh, material))
     } else if t == "plane" {
         let position = try!(data.find("position").ok_or(error("bad primitive"))
                            .and_then(read::<Point>));
         let normal = try!(data.find("normal").ok_or(error("bad primitive"))
                           .and_then(read::<UnitVector>));
-        let color = try!(data.find("color").ok_or(error("bad primitive"))
-                         .and_then(read::<Color>));
+        let material = try!(data.find("material").ok_or(error("bad primitive"))
+                            .and_then(read::<Material>));
 
-        Ok(Primitive::new(Plane::new(position, normal),
-                          Material {color: color, diffuse: 0.9, specular: 4.0}))
+        Ok(Primitive::new(Plane::new(position, normal), material))
     } else {
         Err(error("bad primitive"))
     }
