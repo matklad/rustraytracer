@@ -1,4 +1,3 @@
-mod filters;
 mod image;
 
 use geom::{UnitVector, Dot};
@@ -8,38 +7,91 @@ use color::Color;
 use scene::Scene;
 use scene::Light;
 use scene::Primitive;
-use self::filters::Filter;
 use self::image::new_image;
 
 pub use self::image::{Image, Pixel};
-pub use self::filters::SmoothingFilter;
+
+
+struct Sample {
+    screen_point: [f64; 2],
+    weight: f64
+}
+
+trait Sampler {
+    fn sample(&self) -> Vec<Sample>;
+}
+
+fn pixel_to_relative(resolution: Pixel, pixel: Pixel) -> Sample {
+    let mut screen_point = [0.0, 0.0];
+    for i in 0..2 {
+        let res = resolution[i];
+        assert!(pixel[i] < res);
+        let pixel_width = 1.0 / (res as f64);
+        screen_point[i] = (((pixel[i] as f64) + 0.5) * pixel_width) - 0.5;
+        assert!(-0.5 < screen_point[i] && screen_point[i] < 0.5);
+    }
+    Sample { screen_point: screen_point, weight: 1.0 }
+}
+
+fn relative_to_pixel(resolution: Pixel, relative: [f64; 2]) -> Pixel {
+    let mut result = [0, 0];
+    for i in 0..2 {
+        assert!(-0.5 < relative[i] && relative[i] < 0.5);
+        result[i] = (resolution[i] as f64 * (relative[i] + 0.5)) as u32;
+    }
+    result
+}
+
+
+struct SimpleSampler {
+    resolution: Pixel
+}
+
+impl SimpleSampler {
+    fn new(resolution: Pixel) -> SimpleSampler {
+        SimpleSampler { resolution: resolution }
+    }
+}
+
+
+impl Sampler for SimpleSampler {
+    fn sample(&self) -> Vec<Sample> {
+        (0..self.resolution[0])
+            .flat_map(|x| (0..self.resolution[1]).map(move |y| [x, y]))
+            .map(|p| pixel_to_relative(self.resolution, p))
+            .collect()
+    }
+}
 
 
 pub struct Renderer<'a> {
     scene: &'a Scene,
-    pub resolution: Pixel,
-    filter: Box<Filter>,
+    sampler: Box<Sampler>,
+    resolution: Pixel
 }
 
 
 impl<'a> Renderer<'a> {
-    pub fn new<F: Filter + 'static>(scene: &Scene, resolution: Pixel, filter: F) -> Renderer {
-        let resolution = filter.process_resolution(resolution);
+    pub fn new(scene: &Scene, resolution: Pixel) -> Renderer {
         Renderer {scene: scene,
-                  filter: Box::new(filter),
+                  sampler: Box::new(SimpleSampler::new(resolution)),
                   resolution: resolution}
     }
 
     pub fn render(&self) -> Image {
-        let image = new_image(self.resolution, |x, y| {
-            let ray = self.scene.camera.cast_ray(self.resolution, [x, y]);
-            match self.scene.find_obstacle(&ray) {
+        let samples = self.sampler.sample();
+        let mut image = new_image(self.resolution);
+        for s in samples {
+            let ray = self.scene.camera.cast_ray(s.screen_point);
+            let radiance = match self.scene.find_obstacle(&ray) {
                 Some((obj, point)) => self.colorize(ray.direction, &obj, point),
                 None => self.scene.background_color
-            }
-        });
+            };
+            let pixel = relative_to_pixel(self.resolution, s.screen_point);
+            image[pixel] = image[pixel] + radiance * s.weight;
+        }
 
-        self.filter.process_image(image)
+        image
     }
 
     fn colorize(&self, view_direction: UnitVector,

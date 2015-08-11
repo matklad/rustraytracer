@@ -1,6 +1,5 @@
 use geom::{Point, Vector, UnitVector, Cross};
 use geom::ray::{Ray};
-use rendering::Pixel;
 
 
 struct Screen {
@@ -53,18 +52,10 @@ impl Camera {
         }
     }
 
-    pub fn cast_ray(&self, resolution: Pixel, pixel: Pixel) -> Ray {
-        let mut relative = [0.0, 0.0];
-        for i in 0..2 {
-            let res = resolution[i];
-            assert!(pixel[i] < res);
-            let pixel_width = 1.0 / (res as f64);
-            relative[i] = (((pixel[i] as f64) + 0.5) * pixel_width) - 0.5;
-            assert!(-0.5 < relative[i] && relative[i] < 0.5);
-        }
+    pub fn cast_ray(&self, screen_point: [f64; 2]) -> Ray {
         let target = self.screen.center
-            + self.screen.basis[0] * relative[0]
-            + self.screen.basis[1] * relative[1];
+            + self.screen.basis[0] * screen_point[0]
+            + self.screen.basis[1] * screen_point[1];
 
         return Ray::from_to(self.position, target);
     }

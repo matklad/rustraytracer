@@ -11,7 +11,7 @@ use rustc_serialize::Decodable ;
 
 use geom::{Point, UnitVector};
 use geom::shape::{Shape, Intersection, Mesh, Plane};
-use geom::ray::{Ray};
+use geom::ray::Ray;
 use color::Color;
 use self::camera::{Camera, CameraConfig};
 use self::material::Material;
