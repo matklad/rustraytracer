@@ -1,23 +1,29 @@
+mod filters;
+mod image;
+
 use geom::{UnitVector, Dot};
 use geom::shape::Intersection;
 use color::Color;
 
-use super::{Scene, Image};
-use super::light::Light;
-use super::primitive::Primitive;
-use super::filters::Filter;
-use super::image::{new_image, Pixel};
+use scene::Scene;
+use scene::Light;
+use scene::Primitive;
+use self::filters::Filter;
+use self::image::new_image;
+
+pub use self::image::{Image, Pixel};
+pub use self::filters::SmoothingFilter;
 
 
-pub struct Renderer {
-    scene: Scene,
+pub struct Renderer<'a> {
+    scene: &'a Scene,
     pub resolution: Pixel,
     filter: Box<Filter>,
 }
 
 
-impl Renderer {
-    pub fn new<F: Filter + 'static>(scene: Scene, resolution: Pixel, filter: F) -> Renderer {
+impl<'a> Renderer<'a> {
+    pub fn new<F: Filter + 'static>(scene: &Scene, resolution: Pixel, filter: F) -> Renderer {
         let resolution = filter.process_resolution(resolution);
         Renderer {scene: scene,
                   filter: Box::new(filter),

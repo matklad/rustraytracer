@@ -1,8 +1,8 @@
 use std::io;
 
-use scene;
-use super::ImageDisplay;
+use rendering::Image;
 use color::Rgb8Bit;
+use super::ImageDisplay;
 
 
 pub struct PpmWriter<'a> {
@@ -19,7 +19,7 @@ impl<'a> PpmWriter<'a> {
 
 
 impl<'a> ImageDisplay<'a> for PpmWriter<'a> {
-    fn draw(&'a mut self, image: &scene::Image) -> io::Result<()> {
+    fn draw(&'a mut self, image: &Image) -> io::Result<()> {
         let magic_number = "P3";
         let max_color = 255;
         try!(write!(&mut self.destination, "{}\n{} {}\n{}\n",

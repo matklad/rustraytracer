@@ -1,6 +1,6 @@
 use geom::{Point, Vector, UnitVector, Cross};
 use geom::ray::{Ray};
-use super::Pixel;
+use rendering::Pixel;
 
 
 struct Screen {

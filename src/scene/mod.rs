@@ -1,10 +1,7 @@
 mod camera;
-mod filters;
-mod image;
 mod light;
 mod material;
 mod primitive;
-mod renderer;
 
 use std::error::Error;
 use std::{io, fs};
@@ -16,22 +13,19 @@ use geom::{Point, UnitVector};
 use geom::shape::{Shape, Intersection, Mesh, Plane};
 use geom::ray::{Ray};
 use color::Color;
-use self::camera::{Camera, CameraConfig} ;
-use self::light::Light;
-use self::primitive::Primitive;
+use self::camera::{Camera, CameraConfig};
 use self::material::Material;
 
-pub use self::image::{Image, Pixel};
-pub use self::filters::{NopFilter, SmoothingFilter};
-pub use self::renderer::Renderer;
+pub use self::light::Light;
+pub use self::primitive::Primitive;
 
 
 pub struct Scene {
-    camera: Camera,
-    ambient_light: Color,
-    background_color: Color,
-    primitives: Vec<Primitive>,
-    lights: Vec<Light>,
+    pub camera: Camera,
+    pub ambient_light: Color,
+    pub background_color: Color,
+    pub primitives: Vec<Primitive>,
+    pub lights: Vec<Light>,
 }
 
 
@@ -52,7 +46,7 @@ impl Scene {
         })
     }
 
-    fn find_obstacle(&self, ray: &Ray) -> Option<(&Primitive, Intersection)> {
+    pub fn find_obstacle(&self, ray: &Ray) -> Option<(&Primitive, Intersection)> {
         let mut result = None;
         for obj in self.primitives.iter() {
             if let Some(intersection) = obj.shape.intersect(&ray) {
@@ -66,7 +60,7 @@ impl Scene {
         result
     }
 
-    fn is_visible(&self, what: Point, from: Point) -> bool {
+    pub fn is_visible(&self, what: Point, from: Point) -> bool {
         let ray = Ray::from_to(from, what);
         let ray = Ray::from_to(ray.along(1e-6) , what);
         // FIXME: what if obstacle is behind a light source?

@@ -12,9 +12,6 @@ pub trait Filter {
     }
 }
 
-pub struct NopFilter;
-impl Filter for NopFilter {}
-
 pub struct SmoothingFilter(pub u32);
 
 impl SmoothingFilter {

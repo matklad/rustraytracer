@@ -1,6 +1,6 @@
 use std::io;
 
-use scene;
+use rendering::Image;
 use super::ImageDisplay;
 
 
@@ -20,7 +20,7 @@ impl Console {
 
 
 impl<'a> ImageDisplay<'a> for Console {
-    fn draw(&mut self, image: &scene::Image) -> io::Result<()> {
+    fn draw(&mut self, image: &Image) -> io::Result<()> {
 
         for ((x, _), color) in image.iter() {
             if x == 0 {
