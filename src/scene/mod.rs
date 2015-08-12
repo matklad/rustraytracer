@@ -30,7 +30,6 @@ pub struct Scene {
 
 
 impl Scene {
-
     pub fn from_json(data: Json) -> Result<Scene, Box<Error>> {
         let conf = try!(read::<SceneConfig>(&data));
 

@@ -22,8 +22,8 @@ impl Console {
 impl<'a> ImageDisplay<'a> for Console {
     fn draw(&mut self, image: &Image) -> io::Result<()> {
 
-        for ((x, _), color) in image.iter() {
-            if x == 0 {
+        for (xy, color) in image.iter() {
+            if xy[0] == 0 {
                 println!("");
             }
             let color = if color.grayscale() < 0.5 {

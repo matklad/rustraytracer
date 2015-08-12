@@ -25,8 +25,8 @@ impl<'a> ImageDisplay<'a> for PpmWriter<'a> {
         try!(write!(&mut self.destination, "{}\n{} {}\n{}\n",
                     magic_number, image.width(), image.height(), max_color));
 
-        for ((x, _), color) in image.iter() {
-            if x == 0 {
+        for (xy, color) in image.iter() {
+            if xy[0] == 0 {
                 try!(write!(&mut self.destination, "\n"));
             }
             let Rgb8Bit {r, g, b} = Rgb8Bit::truncate(&color);

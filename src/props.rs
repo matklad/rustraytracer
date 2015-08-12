@@ -1,7 +1,7 @@
 use rand;
 
 
-const N_CHECKS: i32 = 500;
+const N_CHECKS: i32 = 1000;
 
 
 pub fn check_prop2<A, B, F>(mut prop: F)

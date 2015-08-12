@@ -1,4 +1,7 @@
 mod image;
+mod samplers;
+mod utils;
+mod filters;
 
 use geom::{UnitVector, Dot};
 use geom::shape::Intersection;
@@ -7,90 +10,11 @@ use color::Color;
 use scene::Scene;
 use scene::Light;
 use scene::Primitive;
-use self::image::new_image;
+use self::samplers::{Sampler, SimpleSampler};
+use self::filters::{Filter, box_filter};
 
 pub use self::image::{Image, Pixel};
 
-
-type RelPixel = [f64; 2];
-
-trait RelPixelExt {
-    fn to_absolute(&self, resolution: Pixel) -> Pixel;
-}
-
-impl RelPixelExt for RelPixel {
-    fn to_absolute(&self, resolution: Pixel) -> Pixel {
-        let mut result = [0, 0];
-        for i in 0..2 {
-            assert!(-0.5 < self[i] && self[i] < 0.5);
-            result[i] = (resolution[i] as f64 * (self[i] + 0.5)) as u32;
-        }
-        result
-    }
-}
-
-trait PixelExt {
-    fn to_relative(&self, resolution: Pixel) -> RelPixel;
-}
-
-impl PixelExt for Pixel {
-    fn to_relative(&self, resolution: Pixel) -> RelPixel {
-        let mut result = [0.0, 0.0];
-        for i in 0..2 {
-            let res = resolution[i];
-            assert!(self[i] < res);
-            let pixel_width = 1.0 / (res as f64);
-            result[i] = (((self[i] as f64) + 0.5) * pixel_width) - 0.5;
-            assert!(-0.5 < result[i] && result[i] < 0.5);
-        }
-        result
-    }
-}
-
-
-#[derive(Clone, Copy)]
-struct Sample {
-    screen_point: [f64; 2],
-    weight: f64
-}
-
-trait Sampler {
-    fn sample(&self) -> Vec<Sample>;
-}
-
-struct SimpleSampler {
-    resolution: Pixel
-}
-
-impl SimpleSampler {
-    fn new(resolution: Pixel) -> SimpleSampler {
-        SimpleSampler { resolution: resolution }
-    }
-}
-
-
-impl Sampler for SimpleSampler {
-    fn sample(&self) -> Vec<Sample> {
-        (0..self.resolution[0])
-            .flat_map(|x| (0..self.resolution[1]).map(move |y| [x, y]))
-            .map(|p| Sample {
-                screen_point: p.to_relative(self.resolution),
-                weight: 1.0
-            }).collect()
-    }
-}
-
-
-type Filter = Fn(Pixel, &Vec<(Sample, Color)>) -> Image;
-
-fn box_filter(resolution: Pixel, samples: &Vec<(Sample, Color)>) -> Image {
-    let mut image = new_image(resolution);
-    for &(sample, radiance) in samples.iter() {
-        let pixel = sample.screen_point.to_absolute(resolution);
-        image[pixel] = image[pixel] + radiance * sample.weight;
-    }
-    image
-}
 
 pub struct Renderer<'a> {
     scene: &'a Scene,
@@ -112,7 +36,7 @@ impl<'a> Renderer<'a> {
         let samples = self.sampler.sample()
             .into_iter()
             .map(|s| {
-                let ray = self.scene.camera.cast_ray(s.screen_point);
+                let ray = self.scene.camera.cast_ray(s.pixel);
                 let radiance = match self.scene.find_obstacle(&ray) {
                     Some((obj, point)) => self.colorize(ray.direction, &obj, point),
                     None => self.scene.background_color
@@ -139,11 +63,9 @@ impl<'a> Renderer<'a> {
         }
         result
     }
-
-
 }
 
-trait ColoredPrimitive {
+trait PrimitiveExt {
     fn colorize_ambient(&self, ambient: Color) -> Color;
     fn colorize_diffuse(&self, light: &Light, light_direction: UnitVector,
                         normal: UnitVector) -> Color;
@@ -153,7 +75,7 @@ trait ColoredPrimitive {
 }
 
 
-impl ColoredPrimitive for Primitive {
+impl PrimitiveExt for Primitive {
     fn colorize_ambient(&self, ambient: Color) -> Color {
         self.material.color * ambient
     }
