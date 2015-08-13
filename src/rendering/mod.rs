@@ -15,6 +15,7 @@ use self::samplers::{Sampler, StratifiedSampler};
 use self::filters::{Filter, box_filter};
 
 pub use self::config::RendererConfig;
+pub use self::utils::ScreenPoint;
 
 
 pub type Pixel = [u32; 2];

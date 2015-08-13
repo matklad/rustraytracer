@@ -1,12 +1,12 @@
 use rand;
 
 use super::Pixel;
-use super::utils::RelPixel;
+use super::utils::ScreenPoint;
 
 
 #[derive(Clone, Copy)]
 pub struct Sample {
-    pub pixel: RelPixel,
+    pub pixel: ScreenPoint,
 }
 
 
@@ -42,7 +42,7 @@ impl Sampler for StratifiedSampler {
                         square[i] += rand::random::<f64>() % (diff[i] / 2.0);
                     }
                     assert!(0.0 <= square[i] && square[i] <= 1.0);
-                    square[i] -= 0.5;
+                    square[i] = (square[i] - 0.5) * 2.0;
                 }
                 Sample {
                     pixel: square

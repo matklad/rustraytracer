@@ -1,6 +1,8 @@
 use geom::{Point, Vector, UnitVector, Cross};
 use geom::ray::{Ray};
 
+use rendering::ScreenPoint;
+
 
 struct Screen {
     center: Point,
@@ -44,7 +46,7 @@ impl Camera {
         let up = right.cross(ray_to_scren.direction).direction();
         let screen = Screen {
             center: screen_center,
-            basis: [right * config.size[0], -up * config.size[1]],
+            basis: [right * config.size[0] / 2.0, -up * config.size[1] / 2.0] ,
         };
         Camera {
             position: config.position,
@@ -52,7 +54,7 @@ impl Camera {
         }
     }
 
-    pub fn cast_ray(&self, screen_point: [f64; 2]) -> Ray {
+    pub fn cast_ray(&self, screen_point: ScreenPoint) -> Ray {
         let target = self.screen.center
             + self.screen.basis[0] * screen_point[0]
             + self.screen.basis[1] * screen_point[1];

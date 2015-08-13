@@ -1,6 +1,6 @@
 use color::Color;
 use datastructures::Matrix;
-use super::utils::{RelPixelExt, PixelExt};
+use super::utils::{ScreenPointExt, PixelExt};
 use super::{Image, Pixel};
 use super::samplers::Sample;
 
@@ -15,19 +15,23 @@ impl Filter {
         let mut image = Image::fill(resolution, Color::new(0.0, 0.0, 0.0));
         let mut weights = Matrix::<f64>::fill(resolution, 0.0);
         for &(sample, radiance) in samples.iter() {
-            for pixel in sample.pixel.neighbours(resolution, self.extent) {
+            // for pixel in sample.pixel.neighbours(resolution, self.extent) {
+            let pixel = sample.pixel.to_absolute(resolution);
                 let rp = pixel.to_relative(resolution);
                 let dx = (rp[0] - sample.pixel[0]).abs();
                 let dy = (rp[1] - sample.pixel[1]).abs();
                 let weight = (self.weight)(dx, dy);
                 image[pixel] = image[pixel] + radiance * weight;
                 weights[pixel] += weight;
-            }
+            // }
 
         }
 
         for (i, weight) in weights.iter() {
-            image[i] = image[i] / weight;
+            if weight != 0.0 {
+                image[i] = image[i] / weight;
+            }
+
         }
 
         image
