@@ -10,7 +10,7 @@ use color::Color;
 use scene::Scene;
 use scene::Light;
 use scene::Primitive;
-use self::samplers::{Sampler, SimpleSampler};
+use self::samplers::{Sampler, StratifiedSampler};
 use self::filters::{Filter, box_filter};
 
 pub use self::image::{Image, Pixel};
@@ -27,7 +27,8 @@ pub struct Renderer<'a> {
 impl<'a> Renderer<'a> {
     pub fn new(scene: &Scene, resolution: Pixel) -> Renderer {
         Renderer {scene: scene,
-                  sampler: Box::new(SimpleSampler::new(resolution)),
+                  sampler: Box::new(StratifiedSampler::new(
+                      [resolution[0] * 2, resolution[1] * 2], true)),
                   filter: Box::new(box_filter),
                   resolution: resolution}
     }
