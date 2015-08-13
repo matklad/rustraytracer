@@ -1,11 +1,12 @@
-mod image;
 mod samplers;
 mod utils;
 mod filters;
+mod config;
 
 use geom::{UnitVector, Dot};
 use geom::shape::Intersection;
 use color::Color;
+use datastructures::Matrix;
 
 use scene::Scene;
 use scene::Light;
@@ -13,7 +14,12 @@ use scene::Primitive;
 use self::samplers::{Sampler, StratifiedSampler};
 use self::filters::{Filter, box_filter};
 
-pub use self::image::{Image, Pixel};
+pub use self::config::RendererConfig;
+
+
+pub type Pixel = [u32; 2];
+
+pub type Image = Matrix<Color>;
 
 
 pub struct Renderer<'a> {
@@ -25,12 +31,12 @@ pub struct Renderer<'a> {
 
 
 impl<'a> Renderer<'a> {
-    pub fn new(scene: &Scene, resolution: Pixel) -> Renderer {
+    pub fn new(scene: &Scene, config: RendererConfig) -> Renderer {
         Renderer {scene: scene,
                   sampler: Box::new(StratifiedSampler::new(
-                      [resolution[0] * 2, resolution[1] * 2], true)),
-                  filter: Box::new(box_filter),
-                  resolution: resolution}
+                      [config.resolution[0] * 2, config.resolution[1] * 2], true)),
+                  filter: Box::new(box_filter([1.0, 1.0])),
+                  resolution: config.resolution}
     }
 
     pub fn render(&self) -> Image {
@@ -45,7 +51,7 @@ impl<'a> Renderer<'a> {
                 (s, radiance)
             }).collect();
 
-        (self.filter)(self.resolution, &samples)
+        self.filter.apply(self.resolution, &samples)
     }
 
     fn colorize(&self, view_direction: UnitVector,

@@ -1,6 +1,6 @@
 use rand;
 
-use super::image::Pixel;
+use super::Pixel;
 use super::utils::RelPixel;
 
 

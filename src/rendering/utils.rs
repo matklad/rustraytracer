@@ -1,4 +1,4 @@
-use super::image::Pixel;
+use super::Pixel;
 
 pub type RelPixel = [f64; 2];
 
@@ -22,8 +22,17 @@ impl RelPixelExt for RelPixel {
         let mut lower = [0, 0];
         let mut upper = [0, 0];
         for i in 0..2 {
-            lower[i] = (self[i] - extent[i] + 0.5) * (resolution[i] as f64)
+            lower[i] = ((self[i] - extent[i] + 0.5) * (resolution[i] as f64)).floor() as u32;
+            upper[i] = ((self[i] + extent[i] + 0.5) * (resolution[i] as f64)).ceil() as u32;
         }
+        let mut result = Vec::new();
+        for x in lower[0]..upper[0] {
+            for y in lower[1]..upper[1] {
+                result.push([x, y]);
+            }
+        }
+
+        result
     }
 }
 

@@ -1,22 +1,27 @@
-#[redive(RustcDecodable)]
-struct RendererConfig {
-    resolution: Pixel,
-    sampler: SamplerConfig,
-    filter: FilterConfig
+use super::Pixel;
+
+#[derive(RustcDecodable)]
+pub struct RendererConfig {
+    pub resolution: Pixel,
+    pub sampler: SamplerConfig,
+    pub filter: FilterConfig
 }
 
-#[redive(RustcDecodable)]
-enum SamplerConfig {
-    Stratified(samples_per_pixel: u32, jitter: bool)
+#[derive(RustcDecodable)]
+pub enum SamplerConfig {
+    Stratified {
+        samples_per_pixel: u32,
+        jitter: bool
+    }
 }
 
-#[redive(RustcDecodable)]
-struct FilterConfig {
-    extent: [f64; 2],
-    function: FilterFunctionConfig;
+#[derive(RustcDecodable)]
+pub struct FilterConfig {
+    pub extent: [f64; 2],
+    pub function: FilterFunctionConfig
 }
 
-#[redive(RustcDecodable)]
-enum FilterFunctionConfig {
-    Box()
+#[derive(RustcDecodable)]
+pub enum FilterFunctionConfig {
+    Box
 }

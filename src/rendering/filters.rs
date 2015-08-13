@@ -1,32 +1,45 @@
 use color::Color;
 use datastructures::Matrix;
-use super::utils::{RelPixelExt};
-use super::image::{Image, Pixel};
+use super::utils::{RelPixelExt, PixelExt};
+use super::{Image, Pixel};
 use super::samplers::Sample;
 
 
-pub type Filter = Fn(Pixel, &Vec<(Sample, Color)>) -> Image;
-
-struct Filter<F> {
+pub struct Filter {
     extent: [f64; 2],
-    weight: Fn([f64; 2]) -> f64
+    weight: fn(f64, f64) -> f64
 }
 
 impl Filter {
     pub fn apply(&self, resolution: Pixel, samples: &Vec<(Sample, Color)>) -> Image {
         let mut image = Image::fill(resolution, Color::new(0.0, 0.0, 0.0));
-        let mut weights = Matrix::<f64>::fill(resolution, 0);
+        let mut weights = Matrix::<f64>::fill(resolution, 0.0);
         for &(sample, radiance) in samples.iter() {
-            let pixel = sample.pixel.to_absolute(resolution);
-            let w =
-            image[pixel] = image[pixel] + radiance;
-            weights[pixel] += 1;
+            for pixel in sample.pixel.neighbours(resolution, self.extent) {
+                let rp = pixel.to_relative(resolution);
+                let dx = (rp[0] - sample.pixel[0]).abs();
+                let dy = (rp[1] - sample.pixel[1]).abs();
+                let weight = (self.weight)(dx, dy);
+                image[pixel] = image[pixel] + radiance * weight;
+                weights[pixel] += weight;
+            }
+
         }
 
-        for (i, cnt) in weights.iter() {
-            image[i] = image[i] / (cnt as f64);
+        for (i, weight) in weights.iter() {
+            image[i] = image[i] / weight;
         }
 
         image
     }
+}
+
+
+fn box_weight(_x: f64, _y: f64) -> f64 {
+    1.0
+}
+
+pub fn box_filter(extent: [f64; 2]) -> Filter {
+
+    Filter { extent: extent, weight: box_weight}
 }

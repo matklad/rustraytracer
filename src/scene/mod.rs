@@ -6,9 +6,6 @@ mod primitive;
 use std::error::Error;
 use std::{io, fs};
 
-use rustc_serialize::json::{self, Json};
-use rustc_serialize::Decodable ;
-
 use geom::{Point, UnitVector};
 use geom::shape::{Shape, Intersection, Mesh, Plane};
 use geom::ray::Ray;
@@ -30,18 +27,16 @@ pub struct Scene {
 
 
 impl Scene {
-    pub fn from_json(data: Json) -> Result<Scene, Box<Error>> {
-        let conf = try!(read::<SceneConfig>(&data));
-
-        let primitives = try!(conf.primitives.into_iter().map(read_primitive)
+    pub fn new(config: SceneConfig) -> Result<Scene, Box<Error>> {
+        let primitives = try!(config.primitives.into_iter().map(read_primitive)
                               .collect::<Result<Vec<Primitive>, _>>());
 
         Ok(Scene {
-            camera: Camera::new(conf.camera),
-            ambient_light: conf.ambient_light,
-            background_color: conf.background_color,
+            camera: Camera::new(config.camera),
+            ambient_light: config.ambient_light,
+            background_color: config.background_color,
             primitives: primitives,
-            lights: conf.lights,
+            lights: config.lights,
         })
     }
 
@@ -68,7 +63,17 @@ impl Scene {
 }
 
 #[derive(RustcDecodable)]
-enum PrimitiveConfig {
+pub struct SceneConfig {
+    camera: CameraConfig,
+    ambient_light: Color,
+    background_color: Color,
+    primitives: Vec<PrimitiveConfig>,
+    lights: Vec<Light>
+}
+
+
+#[derive(RustcDecodable)]
+pub enum PrimitiveConfig {
     Mesh {
         location: String,
         material: Material
@@ -80,21 +85,13 @@ enum PrimitiveConfig {
     }
 }
 
-#[derive(RustcDecodable)]
-struct SceneConfig {
-    camera: CameraConfig,
-    ambient_light: Color,
-    background_color: Color,
-    primitives: Vec<PrimitiveConfig>,
-    lights: Vec<Light>
-}
 
 
-fn read<T: Decodable>(data: &Json) -> Result<T, Box<Error>> {
-    let mut decoder = json::Decoder::new(data.clone());
-    let result = try!(Decodable::decode(&mut decoder));
-    Ok(result)
-}
+// fn read<T: Decodable>(data: &Json) -> Result<T, Box<Error>> {
+//     let mut decoder = json::Decoder::new(data.clone());
+//     let result = try!(Decodable::decode(&mut decoder));
+//     Ok(result)
+// }
 
 fn read_primitive(conf: PrimitiveConfig) -> Result<Primitive, Box<Error>> {
     match conf {
