@@ -1,7 +1,8 @@
 use rand;
 
+use scene::ScreenPoint;
 use super::Pixel;
-use super::utils::ScreenPoint;
+use super::utils::to_uniform;
 
 
 #[derive(Clone, Copy)]
@@ -31,21 +32,21 @@ impl StratifiedSampler {
 
 impl Sampler for StratifiedSampler {
     fn sample(&self) -> Vec<Sample> {
-        let diff = [1.0 / self.resolution[0] as f64, 1.0 / self.resolution[1] as f64];
         (0..self.resolution[0])
-            .flat_map(|x| (0..self.resolution[1]).map(move |y| [x as f64, y as f64]))
+            .flat_map(|x| (0..self.resolution[1]).map(move |y| [x , y]))
             .map(|p| {
-                let mut square = [0.0, 0.0];
-                for i in 0..2 {
-                    square[i] = (p[i] + 0.5) * diff[i];
-                    if self.jitter {
-                        square[i] += rand::random::<f64>() % (diff[i] / 2.0);
-                    }
-                    assert!(0.0 <= square[i] && square[i] <= 1.0);
-                    square[i] = (square[i] - 0.5) * 2.0;
-                }
+                assert!(p[1] < 480);
+                let jitter = if self.jitter {
+                    ScreenPoint::new(
+                        rand::random::<f64>() % 0.5,
+                        rand::random::<f64>() % 0.5)
+                } else {
+                    ScreenPoint::new(0.0, 0.0)
+                };
+
+                let pixel = to_uniform(self.resolution, ScreenPoint::from(p) + jitter);
                 Sample {
-                    pixel: square
+                    pixel: pixel
                 }
             }).collect()
     }

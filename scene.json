@@ -38,10 +38,10 @@
     "resolution": [640, 480],
     "sampler": {
       "variant": "Stratified",
-      "fields": [1, false]
+      "fields": [1, true]
     },
     "filter": {
-      "extent": [1, 1],
+      "extent": [20.0, 20.0],
       "function": {
         "variant": "Box",
         "fields": []

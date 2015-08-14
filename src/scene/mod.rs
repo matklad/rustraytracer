@@ -15,6 +15,7 @@ use self::material::Material;
 
 pub use self::light::Light;
 pub use self::primitive::Primitive;
+pub use self::camera::ScreenPoint;
 
 
 pub struct Scene {

@@ -15,7 +15,6 @@ use self::samplers::{Sampler, StratifiedSampler};
 use self::filters::{Filter, box_filter};
 
 pub use self::config::RendererConfig;
-pub use self::utils::ScreenPoint;
 
 
 pub type Pixel = [u32; 2];
@@ -35,8 +34,8 @@ impl<'a> Renderer<'a> {
     pub fn new(scene: &Scene, config: RendererConfig) -> Renderer {
         Renderer {scene: scene,
                   sampler: Box::new(StratifiedSampler::new(
-                      [config.resolution[0] * 2, config.resolution[1] * 2], true)),
-                  filter: Box::new(box_filter([1.0, 1.0])),
+                      [config.resolution[0], config.resolution[1]], true)),
+                  filter: Box::new(box_filter(config.filter.extent, config.resolution)),
                   resolution: config.resolution}
     }
 

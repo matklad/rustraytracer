@@ -1,7 +1,28 @@
 use geom::{Point, Vector, UnitVector, Cross};
 use geom::ray::{Ray};
 
-use rendering::ScreenPoint;
+
+#[derive(Clone, Copy, Debug)]
+pub struct ScreenPoint {
+    pub x: f64,
+    pub y: f64
+}
+
+impl ScreenPoint {
+    pub fn new(x: f64, y: f64) -> ScreenPoint {
+        ScreenPoint {x: x, y: y}
+    }
+    pub fn is_normalized(&self) -> bool {
+        let within_bounds = |x| -1.0 <= x && x < 1.0;
+        within_bounds(self.x) && within_bounds(self.y)
+    }
+}
+
+impl From<[f64; 2]> for ScreenPoint {
+    fn from(xy: [f64; 2]) -> ScreenPoint {
+        ScreenPoint::new(xy[0], xy[1])
+    }
+}
 
 
 struct Screen {
@@ -9,10 +30,12 @@ struct Screen {
     basis: [Vector; 2],
 }
 
+
 pub struct Camera {
     position: Point,
     screen: Screen,
 }
+
 
 #[derive(RustcDecodable)]
 pub struct CameraConfig {
@@ -24,19 +47,6 @@ pub struct CameraConfig {
     pub size: [f64; 2],
 }
 
-impl Default for CameraConfig {
-    fn default() -> CameraConfig {
-        use geom::shortcuts::{p, v};
-
-        CameraConfig {
-            position: p(0.0, 50.0, 0.0),
-            look_at: p(0.0, 0.0, 0.0),
-            focus_distance: 20.0,
-            up: v(0.0, 0.0, 1.0).direction(),
-            size: [6.4, 4.8]
-        }
-    }
-}
 
 impl Camera {
     pub fn new(config: CameraConfig) -> Camera {
@@ -56,12 +66,13 @@ impl Camera {
 
     pub fn cast_ray(&self, screen_point: ScreenPoint) -> Ray {
         let target = self.screen.center
-            + self.screen.basis[0] * screen_point[0]
-            + self.screen.basis[1] * screen_point[1];
+            + self.screen.basis[0] * screen_point.x
+            + self.screen.basis[1] * screen_point.y;
 
         return Ray::from_to(self.position, target);
     }
 }
+
 
 #[cfg(test)]
 mod tests {
@@ -77,7 +88,6 @@ mod tests {
             focus_distance: 10.0,
             up: v(0.0, 0.0, 1.0).direction(),
             size: [6.4, 4.8],
-            ..Default::default()
         };
         let cam = Camera::new(config);
         check_prop2(|x: f64, y: f64| {
