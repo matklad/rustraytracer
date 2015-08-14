@@ -91,9 +91,9 @@ mod tests {
         };
         let cam = Camera::new(config);
         check_prop2(|x: f64, y: f64| {
-            let x = x % 0.5;
-            let y = y % 0.5;
-            let ray = cam.cast_ray([x, y]);
+            let x = x % 1.0;
+            let y = y % 1.0;
+            let ray = cam.cast_ray(ScreenPoint::new(x, y));
             let p = ray.along(10.0);
             assert!(-1.0 < p[0] && p[0] < 0.0);
 

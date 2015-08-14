@@ -4,6 +4,7 @@ use scene::ScreenPoint;
 use super::{Image, Pixel};
 use super::samplers::Sample;
 use super::utils::{to_scren_point, from_uniform};
+use super::config::{FilterConfig, FilterFunctionConfig};
 
 
 pub struct Filter {
@@ -13,6 +14,16 @@ pub struct Filter {
 }
 
 impl Filter {
+    pub fn new(resolution: Pixel, config: FilterConfig) -> Filter {
+        match config.function {
+            FilterFunctionConfig::Box => Filter {
+                extent: ScreenPoint::from(config.extent),
+                resolution: resolution,
+                weight: box_weight
+            }
+        }
+    }
+
     pub fn apply(&self, resolution: Pixel, samples: &Vec<(Sample, Color)>) -> Image {
         let mut image = Image::fill(resolution, Color::new(0.0, 0.0, 0.0));
         let mut weights = Matrix::<f64>::fill(resolution, 0.0);
@@ -64,11 +75,4 @@ impl Filter {
 
 fn box_weight(_x: f64, _y: f64) -> f64 {
     1.0
-}
-
-pub fn box_filter(extent: [f64; 2], resolution: Pixel) -> Filter {
-    Filter { extent: ScreenPoint::from(extent),
-             resolution: resolution,
-             weight: box_weight
-    }
 }

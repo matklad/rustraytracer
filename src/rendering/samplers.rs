@@ -3,6 +3,7 @@ use rand;
 use scene::ScreenPoint;
 use super::Pixel;
 use super::utils::to_uniform;
+use super::config::SamplerConfig;
 
 
 #[derive(Clone, Copy)]
@@ -21,10 +22,14 @@ pub struct StratifiedSampler {
 }
 
 impl StratifiedSampler {
-    pub fn new(resolution: Pixel, jitter: bool) -> StratifiedSampler {
-        StratifiedSampler {
-            resolution: resolution,
-            jitter: jitter
+    pub fn new(resolution: Pixel, config: SamplerConfig) -> StratifiedSampler {
+        match config {
+            SamplerConfig::Stratified { samples_per_pixel, jitter} =>
+                StratifiedSampler {
+                    resolution: [resolution[0] * samples_per_pixel,
+                                 resolution[1] * samples_per_pixel],
+                    jitter: jitter
+                }
         }
     }
 }

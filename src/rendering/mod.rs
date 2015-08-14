@@ -12,7 +12,7 @@ use scene::Scene;
 use scene::Light;
 use scene::Primitive;
 use self::samplers::{Sampler, StratifiedSampler};
-use self::filters::{Filter, box_filter};
+use self::filters::Filter;
 
 pub use self::config::RendererConfig;
 
@@ -33,9 +33,8 @@ pub struct Renderer<'a> {
 impl<'a> Renderer<'a> {
     pub fn new(scene: &Scene, config: RendererConfig) -> Renderer {
         Renderer {scene: scene,
-                  sampler: Box::new(StratifiedSampler::new(
-                      [config.resolution[0], config.resolution[1]], true)),
-                  filter: Box::new(box_filter(config.filter.extent, config.resolution)),
+                  sampler: Box::new(StratifiedSampler::new(config.resolution, config.sampler)),
+                  filter: Box::new(Filter::new(config.resolution, config.filter)),
                   resolution: config.resolution}
     }
 
