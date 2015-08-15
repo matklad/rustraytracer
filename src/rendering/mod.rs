@@ -32,10 +32,12 @@ pub struct Renderer<'a> {
 
 impl<'a> Renderer<'a> {
     pub fn new(scene: &Scene, config: RendererConfig) -> Renderer {
-        Renderer {scene: scene,
-                  sampler: Box::new(StratifiedSampler::new(config.resolution, config.sampler)),
-                  filter: Box::new(Filter::new(config.resolution, config.filter)),
-                  resolution: config.resolution}
+        Renderer {
+            scene: scene,
+            sampler: Box::new(StratifiedSampler::new(config.resolution, config.sampler)),
+            filter: Box::new(Filter::new(config.resolution, config.filter)),
+            resolution: config.resolution
+        }
     }
 
     pub fn render(&self) -> Image {

@@ -40,7 +40,6 @@ impl Sampler for StratifiedSampler {
         (0..self.resolution[0])
             .flat_map(|x| (0..self.resolution[1]).map(move |y| [x , y]))
             .map(|p| {
-                assert!(p[1] < 480);
                 let jitter = if self.jitter {
                     ScreenPoint::new(
                         rand::random::<f64>() % 0.5,
