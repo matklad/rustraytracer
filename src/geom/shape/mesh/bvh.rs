@@ -62,6 +62,7 @@ impl<T: BoundedShape> Node<T> {
 
         let key = |&(_, ref bound): &(T, BoundBox)| bound.center()[axis];
         shapes.sort_by(|a, b| key(a).partial_cmp(&key(b)).unwrap());
+        // TODO: use SAH
         let mid = shapes.len() / 2;
         let mut l = Vec::new();
         let mut r = Vec::new();
