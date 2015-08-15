@@ -12,7 +12,7 @@ impl<T: Shape + Bound> BoundedShape for T {}
 
 
 enum Node<T: BoundedShape> {
-    Leaf {shape: T},
+    Leaf {shape: T, bound: BoundBox },
     Interior {
         children: [Box<Node<T>>; 2],
         // axis: Axis,
@@ -33,7 +33,7 @@ impl<T: BoundedShape> Node<T> {
 
     fn bound(&self) -> BoundBox {
         match self {
-            &Node::Leaf {ref shape} => shape.bound(),
+            &Node::Leaf {bound, ..} => bound,
             &Node::Interior { bound, ..} => bound
         }
     }
@@ -42,7 +42,9 @@ impl<T: BoundedShape> Node<T> {
     fn build(shapes: Vec<T>) -> Node<T> {
         assert!(shapes.len() > 0);
         if shapes.len() == 1 {
-            Node::Leaf {shape: shapes.into_iter().next().unwrap()}
+            let shape = shapes.into_iter().next().unwrap();
+            let bound = shape.bound();
+            Node::Leaf {shape: shape, bound: bound }
         } else {
             let (left, right, axis) = Node::partition(shapes);
             Node::interior(
@@ -97,7 +99,7 @@ impl<T: BoundedShape> Bvh<T>  {
             }
 
             match node {
-                &Node::Leaf {ref shape} => if let Some(i) = shape.intersect(ray) {
+                &Node::Leaf {ref shape, ..} => if let Some(i) = shape.intersect(ray) {
                     let new_result = match result {
                         None => i,
                         Some(j) => min(i, j)

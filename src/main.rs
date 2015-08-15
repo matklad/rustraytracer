@@ -1,5 +1,6 @@
 extern crate rustraytracer;
 extern crate rustc_serialize;
+extern crate time;
 
 use std::fs;
 use std::io::{self, Read};
@@ -18,6 +19,8 @@ struct Config {
 
 #[cfg_attr(test, allow(dead_code))]
 fn main() {
+    println!("Start rendering...");
+    let start = time::precise_time_s();
     let mut scene_json = String::new();
     fs::File::open("./scene.json").unwrap().read_to_string(&mut scene_json).unwrap();
     let conf: Config = json::decode(&scene_json).unwrap();
@@ -29,4 +32,6 @@ fn main() {
     let mut file = io::BufWriter::new(fs::File::create(path).unwrap());
     let mut display = PpmWriter::new(&mut file);
     display.draw(&image).unwrap();
+    let end = time::precise_time_s();
+    println!("Done! {:.2} seconds", end - start);
 }
