@@ -10,7 +10,7 @@ use scene::{Intersection, Light, Primitive, Scene};
 use self::filters::Filter;
 use self::samplers::{Sampler, StratifiedSampler};
 
-pub use self::config::RendererConfig;
+pub use self::config::TracerConfig;
 
 
 pub type Pixel = [u32; 2];
@@ -18,7 +18,7 @@ pub type Pixel = [u32; 2];
 pub type Image = Matrix<Color>;
 
 
-pub struct Renderer<'a> {
+pub struct Tracer<'a> {
     scene: &'a Scene,
     sampler: Box<Sampler>,
     filter: Box<Filter>,
@@ -26,9 +26,9 @@ pub struct Renderer<'a> {
 }
 
 
-impl<'a> Renderer<'a> {
-    pub fn new(scene: &Scene, config: RendererConfig) -> Renderer {
-        Renderer {
+impl<'a> Tracer<'a> {
+    pub fn new(scene: &Scene, config: TracerConfig) -> Tracer {
+        Tracer {
             scene: scene,
             sampler: Box::new(StratifiedSampler::new(config.resolution, config.sampler)),
             filter: Box::new(Filter::new(config.resolution, config.filter)),

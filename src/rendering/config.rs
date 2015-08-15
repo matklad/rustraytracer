@@ -1,7 +1,7 @@
 use super::Pixel;
 
 #[derive(RustcDecodable)]
-pub struct RendererConfig {
+pub struct TracerConfig {
     pub resolution: Pixel,
     pub sampler: SamplerConfig,
     pub filter: FilterConfig
