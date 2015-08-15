@@ -39,11 +39,10 @@ impl<T: BoundedShape> Node<T> {
     }
 
 
-    fn build(shapes: Vec<T>) -> Node<T> {
+    fn build(shapes: Vec<(T, BoundBox)>) -> Node<T> {
         assert!(shapes.len() > 0);
         if shapes.len() == 1 {
-            let shape = shapes.into_iter().next().unwrap();
-            let bound = shape.bound();
+            let (shape, bound) = shapes.into_iter().next().unwrap();
             Node::Leaf {shape: shape, bound: bound }
         } else {
             let (left, right, axis) = Node::partition(shapes);
@@ -54,13 +53,14 @@ impl<T: BoundedShape> Node<T> {
         }
     }
 
-    fn partition(mut shapes: Vec<T>) -> (Vec<T>, Vec<T>, Axis) {
+    fn partition(mut shapes: Vec<(T, BoundBox)>)
+                 -> (Vec<(T, BoundBox)>, Vec<(T, BoundBox)>, Axis) {
 
-        let axis = shapes.iter().map(|s| s.bound().center())
+        let axis = shapes.iter().map(|&(_, ref bound)| bound.center())
             .collect::<BoundBox>()
             .longext_axis();
 
-        let key = |s: &T| s.bound().center()[axis];
+        let key = |&(_, ref bound): &(T, BoundBox)| bound.center()[axis];
         shapes.sort_by(|a, b| key(a).partial_cmp(&key(b)).unwrap());
         let mid = shapes.len() / 2;
         let mut l = Vec::new();
@@ -82,8 +82,13 @@ pub struct Bvh<T: BoundedShape> {
 
 impl<T: BoundedShape> Bvh<T>  {
     pub fn new(triangles: Vec<T>) -> Bvh<T> {
+        let with_bounds = triangles.into_iter()
+            .map(|t| {
+                let bound = t.bound();
+                (t, bound)
+            }).collect();
         Bvh {
-            root: Node::<T>::build(triangles)
+            root: Node::<T>::build(with_bounds)
         }
     }
 

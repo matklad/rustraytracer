@@ -41,6 +41,13 @@ impl Scene {
         })
     }
 
+    pub fn is_visible(&self, what: Point, from: Point) -> bool {
+        let ray = Ray::from_to(from, what);
+        let ray = Ray::from_to(ray.along(1e-6) , what);
+        // FIXME: what if obstacle is behind a light source?
+        self.find_obstacle(&ray).is_none()
+    }
+
     pub fn find_obstacle(&self, ray: &Ray) -> Option<(&Primitive, Intersection)> {
         let mut result = None;
         for obj in self.primitives.iter() {
@@ -53,13 +60,6 @@ impl Scene {
             }
         }
         result
-    }
-
-    pub fn is_visible(&self, what: Point, from: Point) -> bool {
-        let ray = Ray::from_to(from, what);
-        let ray = Ray::from_to(ray.along(1e-6) , what);
-        // FIXME: what if obstacle is behind a light source?
-        self.find_obstacle(&ray).is_none()
     }
 }
 
