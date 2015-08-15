@@ -3,16 +3,12 @@ mod utils;
 mod filters;
 mod config;
 
-use geom::{UnitVector, Dot};
-use geom::shape::Intersection;
 use color::Color;
 use datastructures::Matrix;
-
-use scene::Scene;
-use scene::Light;
-use scene::Primitive;
-use self::samplers::{Sampler, StratifiedSampler};
+use geom::{UnitVector, Dot};
+use scene::{Intersection, Light, Primitive, Scene};
 use self::filters::Filter;
+use self::samplers::{Sampler, StratifiedSampler};
 
 pub use self::config::RendererConfig;
 
@@ -46,9 +42,7 @@ impl<'a> Renderer<'a> {
             .map(|s| {
                 let ray = self.scene.camera.cast_ray(s.pixel);
                 let radiance = match self.scene.find_obstacle(&ray) {
-                    Some(intersection) => self.colorize(ray.direction,
-                                                        intersection.primitive,
-                                                        intersection.geom),
+                    Some(ref intersection) => self.colorize(ray.direction, intersection),
                     None => self.scene.background_color
                 };
                 (s, radiance)
@@ -57,19 +51,18 @@ impl<'a> Renderer<'a> {
         self.filter.apply(self.resolution, &samples)
     }
 
-    fn colorize(&self, view_direction: UnitVector,
-                primitive: &Primitive, intersection: Intersection) -> Color {
-        let mut result = primitive.colorize_ambient(self.scene.ambient_light);
+    fn colorize(&self, view_direction: UnitVector, intersection: &Intersection) -> Color {
+        let mut result = intersection.primitive.colorize_ambient(self.scene.ambient_light);
         let visible_lights = self.scene.lights.iter()
-            .filter(|&light| self.scene.is_visible(light.position(), intersection.point));
+            .filter(|&light| self.scene.is_visible(light.position(), &intersection));
 
         for light in visible_lights {
-            let light_direction = light.position().direction_to(intersection.point);
-            let normal = intersection.normal;
+            let light_direction = light.position().direction_to(intersection.geom.point);
+            let normal = intersection.geom.normal;
             result = result
-                + primitive.colorize_diffuse(&light, light_direction, normal)
-                + primitive.colorize_specular(view_direction, &light,
-                                           light_direction, normal);
+                + intersection.primitive.colorize_diffuse(&light, light_direction, normal)
+                + intersection.primitive.colorize_specular(view_direction, &light,
+                                                           light_direction, normal);
         }
         result
     }
@@ -77,10 +70,16 @@ impl<'a> Renderer<'a> {
 
 trait PrimitiveExt {
     fn colorize_ambient(&self, ambient: Color) -> Color;
-    fn colorize_diffuse(&self, light: &Light, light_direction: UnitVector,
+
+    fn colorize_diffuse(&self,
+                        light: &Light,
+                        light_direction: UnitVector,
                         normal: UnitVector) -> Color;
-    fn colorize_specular(&self,  view_direction: UnitVector,
-                         light: &Light, light_direction: UnitVector,
+
+    fn colorize_specular(&self,
+                         view_direction: UnitVector,
+                         light: &Light,
+                         light_direction: UnitVector,
                          normal: UnitVector) -> Color;
 }
 
@@ -90,14 +89,19 @@ impl PrimitiveExt for Primitive {
         self.material.color * ambient
     }
 
-    fn colorize_diffuse(&self, light: &Light, light_direction: UnitVector,
+    fn colorize_diffuse(&self,
+                        light: &Light,
+                        light_direction: UnitVector,
                         normal: UnitVector) -> Color {
+
         let k = (-light_direction.dot(normal)).max(0.0) * self.material.diffuse;
         self.material.color * light.color() * k
     }
 
-    fn colorize_specular(&self,  view_direction: UnitVector,
-                         light: &Light, light_direction: UnitVector,
+    fn colorize_specular(&self,
+                         view_direction: UnitVector,
+                         light: &Light,
+                         light_direction: UnitVector,
                          normal: UnitVector) -> Color {
 
         let r = light_direction.reflect(normal);
