@@ -3,47 +3,19 @@ mod light;
 mod material;
 mod primitive;
 
-use std::cmp::Ordering;
 use std::error::Error;
 use std::{io, fs};
 
 use geom::{Point, UnitVector};
-use geom::shape::{self, Shape, Mesh, Plane};
+use geom::shape::{Shape, Mesh, Plane};
 use geom::ray::Ray;
 use color::Color;
 use self::camera::{Camera, CameraConfig};
 use self::material::Material;
 
 pub use self::light::Light;
-pub use self::primitive::Primitive;
+pub use self::primitive::{Primitive, Intersection};
 pub use self::camera::ScreenPoint;
-
-#[derive(Clone, Copy)]
-pub struct Intersection<'a> {
-    pub geom: shape::Intersection,
-    pub primitive: &'a Primitive
-}
-
-impl<'a> Ord for Intersection<'a> {
-    fn cmp(&self, other: &Intersection<'a>) -> Ordering {
-        self.geom.cmp(&other.geom)
-    }
-}
-
-impl<'a> PartialEq for Intersection<'a> {
-    fn eq(&self, other: &Intersection<'a>) -> bool {
-        self.cmp(other) == Ordering::Equal
-    }
-}
-
-impl<'a> PartialOrd for Intersection<'a> {
-    fn partial_cmp(&self, other: &Intersection<'a>) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl<'a> Eq for Intersection<'a> {}
-
 
 
 pub struct Scene {
@@ -77,21 +49,10 @@ impl Scene {
     }
 
     pub fn find_obstacle(&self, ray: &Ray) -> Option<Intersection> {
-        let mut result = None;
-        for obj in self.primitives.iter() {
-            if let Some(intersection) = obj.shape.intersect(&ray) {
-                let intersection = Intersection {
-                    geom: intersection,
-                    primitive: obj
-                };
-                result = match result {
-                    None => Some(intersection),
-                    Some(previous) if intersection < previous => Some(intersection),
-                    _ => result
-                }
-            }
-        }
-        result
+        self.primitives
+            .iter()
+            .filter_map(|obj| obj.intersect(&ray))
+            .min()
     }
 }
 
