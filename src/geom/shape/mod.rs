@@ -23,7 +23,7 @@ pub struct Intersection {
 impl Intersection {
     pub fn new (t: f64, point: Point, normal: UnitVector) -> Intersection {
         assert!(!t.is_nan());
-        Intersection {t: t, point: point, normal: normal, _x: 0}
+        Intersection {t: t, point: point, normal: normal}
     }
 }
 
