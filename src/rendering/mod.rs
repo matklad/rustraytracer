@@ -46,7 +46,9 @@ impl<'a> Renderer<'a> {
             .map(|s| {
                 let ray = self.scene.camera.cast_ray(s.pixel);
                 let radiance = match self.scene.find_obstacle(&ray) {
-                    Some((obj, point)) => self.colorize(ray.direction, &obj, point),
+                    Some(intersection) => self.colorize(ray.direction,
+                                                        intersection.primitive,
+                                                        intersection.geom),
                     None => self.scene.background_color
                 };
                 (s, radiance)

@@ -28,7 +28,7 @@ impl Ord for Intersection {
 
 impl PartialEq for Intersection {
     fn eq(&self, other: &Intersection) -> bool {
-        self.cmp(other) == Ordering::Greater
+        self.cmp(other) == Ordering::Equal
     }
 }
 
