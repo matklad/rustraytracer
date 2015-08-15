@@ -49,11 +49,7 @@ impl Shape for Sphere {
 
         t.map(|t| {
             let point = ray.along(t);
-            Intersection {
-                t: t,
-                point: point,
-                normal: self.normal_at(point)
-            }
+            Intersection::new(t, point, self.normal_at(point))
         })
     }
 }

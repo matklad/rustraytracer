@@ -17,7 +17,14 @@ pub use self::triangle::Triangle;
 pub struct Intersection {
     pub t: f64,
     pub point: Point,
-    pub normal: UnitVector
+    pub normal: UnitVector,
+}
+
+impl Intersection {
+    pub fn new (t: f64, point: Point, normal: UnitVector) -> Intersection {
+        assert!(!t.is_nan());
+        Intersection {t: t, point: point, normal: normal, _x: 0}
+    }
 }
 
 impl Ord for Intersection {
