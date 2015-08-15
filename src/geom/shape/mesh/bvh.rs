@@ -15,18 +15,18 @@ enum Node<T: BoundedShape> {
     Leaf {shape: T, bound: BoundBox },
     Interior {
         children: [Box<Node<T>>; 2],
-        // axis: Axis,
+        axis: Axis,
         bound: BoundBox,
     }
 }
 
 
 impl<T: BoundedShape> Node<T> {
-    fn interior(l: Box<Node<T>>, r: Box<Node<T>>, _axis: Axis) -> Node<T> {
+    fn interior(l: Box<Node<T>>, r: Box<Node<T>>, axis: Axis) -> Node<T> {
         let bound = l.bound().union(&r.bound());
         Node::Interior {
             children: [l, r],
-            // axis: axis,
+            axis: axis,
             bound: bound
         }
     }
@@ -112,9 +112,14 @@ impl<T: BoundedShape> Bvh<T>  {
                     t_bound = t_bound.min(new_result.t);
                     result = Some(new_result);
                 },
-                &Node::Interior {ref children, ..} => {
-                    todo.push(&children[0]);
-                    todo.push(&children[1]);
+                &Node::Interior {ref children, axis, ..} => {
+                    if ray.direction[axis] < 0.0 {
+                        todo.push(&children[0]);
+                        todo.push(&children[1]);
+                    } else {
+                        todo.push(&children[1]);
+                        todo.push(&children[0]);
+                    }
                 }
             }
         }
