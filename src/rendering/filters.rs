@@ -3,14 +3,14 @@ use datastructures::Matrix;
 use scene::ScreenPoint;
 use super::{Image, Pixel};
 use super::samplers::Sample;
-use super::utils::{to_scren_point, from_uniform};
+use super::utils::from_uniform;
 use super::config::{FilterConfig, FilterFunctionConfig};
 
 
 pub struct Filter {
     extent: ScreenPoint,
     resolution: Pixel,
-    weight: fn(f64, f64) -> f64
+    weight: Box<Fn(f64, f64) -> f64>
 }
 
 impl Filter {
@@ -19,17 +19,27 @@ impl Filter {
             FilterFunctionConfig::Box => Filter {
                 extent: ScreenPoint::from(config.extent),
                 resolution: resolution,
-                weight: box_weight
+                weight: Box::new(|_, _| 1.0)
+            },
+            FilterFunctionConfig::Gauss(alpha) => Filter {
+                extent: ScreenPoint::from(config.extent),
+                resolution: resolution,
+                weight: Box::new(move |x, y| {
+                    let gauss = |x: f64| -> f64 {
+                        (-alpha * (x * x)).exp()
+                    };
+                    gauss(x) * gauss(y)
+                })
             }
         }
     }
 
-    pub fn apply(&self, resolution: Pixel, samples: &Vec<(Sample, Color)>) -> Image {
-        let mut image = Image::fill(resolution, Color::new(0.0, 0.0, 0.0));
-        let mut weights = Matrix::<f64>::fill(resolution, 0.0);
+    pub fn apply(&self, samples: &Vec<(Sample, Color)>) -> Image {
+        let mut image = Image::fill(self.resolution, Color::new(0.0, 0.0, 0.0));
+        let mut weights = Matrix::<f64>::fill(self.resolution, 0.0);
         for &(sample, radiance) in samples.iter() {
             for pixel in self.neighbours(sample.pixel) {
-                let diff = to_scren_point(self.resolution, pixel);
+                let diff = ScreenPoint::from(pixel) - from_uniform(self.resolution, sample.pixel);
                 let weight = (self.weight)(diff.x.abs(), diff.y.abs());
                 image[pixel] = image[pixel] + radiance * weight;
                 weights[pixel] += weight;
@@ -70,9 +80,4 @@ impl Filter {
         }
         result
     }
-}
-
-
-fn box_weight(_x: f64, _y: f64) -> f64 {
-    1.0
 }

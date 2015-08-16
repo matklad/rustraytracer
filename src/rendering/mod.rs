@@ -22,7 +22,6 @@ pub struct Tracer<'a> {
     scene: &'a Scene,
     sampler: Box<Sampler>,
     filter: Box<Filter>,
-    resolution: Pixel,
 }
 
 
@@ -31,8 +30,7 @@ impl<'a> Tracer<'a> {
         Tracer {
             scene: scene,
             sampler: Box::new(StratifiedSampler::new(config.resolution, config.sampler)),
-            filter: Box::new(Filter::new(config.resolution, config.filter)),
-            resolution: config.resolution
+            filter: Box::new(Filter::new(config.resolution, config.filter))
         }
     }
 
@@ -48,7 +46,7 @@ impl<'a> Tracer<'a> {
                 (s, radiance)
             }).collect();
 
-        self.filter.apply(self.resolution, &samples)
+        self.filter.apply(&samples)
     }
 
     fn colorize(&self, view_direction: UnitVector, intersection: &Intersection) -> Color {

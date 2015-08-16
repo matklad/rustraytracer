@@ -19,7 +19,7 @@
           "fields": ["#00B", "#BB0"]
         }
       },
-      "plain": {
+      "plane": {
         "specular": 4,
         "diffuse": 0.9,
         "texture": {
@@ -28,7 +28,6 @@
         }
       }
     },
-
     "primitives": [
       {"variant": "Mesh",
        "fields": [
@@ -38,8 +37,8 @@
       },
       {"variant": "Plane",
        "fields": [
-         "plain",
-         [0, -8, 0],
+         "plane",
+         [0, -8.1, 0],
          [0, 1, 0]
        ]
       }
@@ -55,13 +54,13 @@
     "resolution": [640, 480],
     "sampler": {
       "variant": "Stratified",
-      "fields": [2, false]
+      "fields": [2, true]
     },
     "filter": {
       "extent": [0.5, 0.5],
       "function": {
-        "variant": "Box",
-        "fields": []
+        "variant": "Gauss",
+        "fields": [1]
       }
     }
   }

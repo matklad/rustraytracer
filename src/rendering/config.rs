@@ -23,5 +23,6 @@ pub struct FilterConfig {
 
 #[derive(RustcDecodable)]
 pub enum FilterFunctionConfig {
-    Box
+    Box,
+    Gauss(f64)
 }

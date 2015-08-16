@@ -17,12 +17,6 @@ pub fn from_uniform(resolution: Pixel, point: ScreenPoint) -> ScreenPoint {
     result
 }
 
-pub fn to_scren_point(resolution: Pixel, pixel: Pixel) -> ScreenPoint {
-    let pixel = ScreenPoint::from(pixel);
-    to_uniform(resolution, pixel)
-}
-
-
 impl Sub<ScreenPoint> for ScreenPoint {
     type Output = ScreenPoint;
 

@@ -1,8 +1,10 @@
 extern crate rustraytracer;
 extern crate rustc_serialize;
+extern crate regex;
 extern crate time;
 
 use std::fs;
+use regex::Regex;
 use std::io::{self, Read};
 
 use rustc_serialize::json;
@@ -16,14 +18,20 @@ struct Config {
     rendering: TracerConfig,
 }
 
+fn read_scene_description(path: &str) -> String {
+    let mut result = String::new();
+    fs::File::open(path).unwrap().read_to_string(&mut result).unwrap();
+    let comment = Regex::new(r"(?m)^\s*//.*$").unwrap();
+    comment.replace_all(&result, "\n")
+}
+
 
 #[cfg_attr(test, allow(dead_code))]
 fn main() {
     println!("Start rendering...");
     let start = time::precise_time_s();
-    let mut scene_json = String::new();
-    fs::File::open("./scene.json").unwrap().read_to_string(&mut scene_json).unwrap();
-    let conf: Config = json::decode(&scene_json).unwrap();
+
+    let conf: Config = json::decode(&read_scene_description("./scene.json")).unwrap();
     let scene = Scene::new(conf.scene).unwrap();
     let renderer = Tracer::new(&scene, conf.rendering);
 
@@ -32,6 +40,7 @@ fn main() {
     let mut file = io::BufWriter::new(fs::File::create(path).unwrap());
     let mut display = PpmWriter::new(&mut file);
     display.draw(&image).unwrap();
+
     let end = time::precise_time_s();
     println!("Done! {:.2} seconds", end - start);
 }

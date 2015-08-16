@@ -48,9 +48,8 @@ impl Sampler for StratifiedSampler {
                     ScreenPoint::new(0.0, 0.0)
                 };
 
-                let pixel = to_uniform(self.resolution, ScreenPoint::from(p) + jitter);
                 Sample {
-                    pixel: pixel
+                    pixel: to_uniform(self.resolution, ScreenPoint::from(p) + jitter)
                 }
             }).collect()
     }
