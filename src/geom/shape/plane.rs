@@ -30,7 +30,8 @@ impl Shape for Plane {
         if t < 0.0 {
             None
         } else {
-            Some(Intersection::new(t, ray.along(t), self.normal))
+            let local_coordinates = [0.0, 0.0];
+            Some(Intersection::new(t, ray.along(t), local_coordinates, self.normal))
         }
     }
 }

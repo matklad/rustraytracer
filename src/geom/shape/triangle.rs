@@ -68,7 +68,9 @@ impl Shape for Triangle {
         let (alpha, beta, gamma) = self.local_coordinates(point);
         let f = |x| 0.0 < x && x < 1.0;
         if f(alpha) && f(beta) && f(gamma)  {
-            Some(Intersection::new(t, point, self.interpolate_normal(alpha, beta, gamma)))
+            Some(Intersection::new(t, point,
+                                   [alpha, beta],
+                                   self.interpolate_normal(alpha, beta, gamma)))
         } else {
             None
         }

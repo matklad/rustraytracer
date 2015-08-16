@@ -49,7 +49,8 @@ impl Shape for Sphere {
 
         t.map(|t| {
             let point = ray.along(t);
-            Intersection::new(t, point, self.normal_at(point))
+            let local_coordinates = [0.0, 0.0];
+            Intersection::new(t, point, local_coordinates, self.normal_at(point))
         })
     }
 }

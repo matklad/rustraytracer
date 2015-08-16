@@ -17,13 +17,23 @@ pub use self::triangle::Triangle;
 pub struct Intersection {
     pub t: f64,
     pub point: Point,
+    pub local_coordinates: [f64; 2],
     pub normal: UnitVector,
 }
 
 impl Intersection {
-    pub fn new (t: f64, point: Point, normal: UnitVector) -> Intersection {
+    pub fn new (t: f64,
+                point: Point,
+                local_coordinates: [f64; 2],
+                normal: UnitVector) -> Intersection {
+
         assert!(!t.is_nan());
-        Intersection {t: t, point: point, normal: normal}
+        Intersection {
+            t: t,
+            point: point,
+            local_coordinates: local_coordinates,
+            normal: normal
+        }
     }
 }
 

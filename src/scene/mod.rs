@@ -1,6 +1,7 @@
 mod camera;
 mod light;
-mod material;
+// FIXME: https://github.com/rust-lang/rust/issues/16264
+pub mod material;
 mod primitive;
 
 use std::error::Error;
@@ -11,11 +12,12 @@ use geom::shape::{Shape, Mesh, Plane};
 use geom::ray::Ray;
 use color::Color;
 use self::camera::{Camera, CameraConfig};
-use self::material::Material;
+use self::material::MaterialConfig;
 
 pub use self::light::Light;
 pub use self::primitive::{Primitive, Intersection};
 pub use self::camera::ScreenPoint;
+pub use self::material::{Texture, Material};
 
 
 pub struct Scene {
@@ -70,31 +72,23 @@ pub struct SceneConfig {
 pub enum PrimitiveConfig {
     Mesh {
         location: String,
-        material: Material
+        material: MaterialConfig
     },
     Plane {
         position: Point,
         normal: UnitVector,
-        material: Material
+        material: MaterialConfig
     }
 }
-
-
-
-// fn read<T: Decodable>(data: &Json) -> Result<T, Box<Error>> {
-//     let mut decoder = json::Decoder::new(data.clone());
-//     let result = try!(Decodable::decode(&mut decoder));
-//     Ok(result)
-// }
 
 fn read_primitive(conf: PrimitiveConfig) -> Result<Primitive, Box<Error>> {
     match conf {
         PrimitiveConfig::Mesh {location, material} => {
             let mut file = try!(fs::File::open(&location).map(io::BufReader::new));
             let mesh = try!(Mesh::from_obj(&mut file));
-            Ok(Primitive::new(mesh, material))
+            Ok(Primitive::new(mesh, Material::from(material)))
         },
         PrimitiveConfig::Plane {position, normal, material} =>
-            Ok(Primitive::new(Plane::new(position, normal), material))
+            Ok(Primitive::new(Plane::new(position, normal), Material::from(material)))
     }
 }
