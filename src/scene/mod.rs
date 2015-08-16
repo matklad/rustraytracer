@@ -4,8 +4,10 @@ mod light;
 pub mod material;
 mod primitive;
 
+use std::rc::Rc;
 use std::error::Error;
-use std::{io, fs};
+use std::{io, fs, fmt};
+use std::collections::HashMap;
 
 use geom::{Point, UnitVector};
 use geom::shape::{Shape, Mesh, Plane};
@@ -31,7 +33,12 @@ pub struct Scene {
 
 impl Scene {
     pub fn new(config: SceneConfig) -> Result<Scene, Box<Error>> {
-        let primitives = try!(config.primitives.into_iter().map(read_primitive)
+        let materials = config.materials.into_iter()
+            .map(|(k, v)| (k, Rc::new(Material::from(v))))
+            .collect();
+
+        let primitives = try!(config.primitives.into_iter()
+                              .map(|p| read_primitive(p, &materials))
                               .collect::<Result<Vec<Primitive>, _>>());
 
         Ok(Scene {
@@ -63,6 +70,7 @@ pub struct SceneConfig {
     camera: CameraConfig,
     ambient_light: Color,
     background_color: Color,
+    materials: HashMap<String, MaterialConfig>,
     primitives: Vec<PrimitiveConfig>,
     lights: Vec<Light>
 }
@@ -71,24 +79,50 @@ pub struct SceneConfig {
 #[derive(RustcDecodable)]
 pub enum PrimitiveConfig {
     Mesh {
-        location: String,
-        material: MaterialConfig
+        material: String,
+        location: String
     },
     Plane {
+        material: String,
         position: Point,
-        normal: UnitVector,
-        material: MaterialConfig
+        normal: UnitVector
     }
 }
 
-fn read_primitive(conf: PrimitiveConfig) -> Result<Primitive, Box<Error>> {
+#[derive(Debug)]
+pub struct ParseSceneError {
+    description: String
+}
+
+impl Error for ParseSceneError {
+    fn description(&self) -> &str {
+        &self.description
+    }
+}
+
+impl fmt::Display for ParseSceneError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.description().fmt(f)
+    }
+}
+
+
+fn read_primitive<'a>(conf: PrimitiveConfig, materials: &HashMap<String, Rc<Material>>)
+                  -> Result<Primitive, Box<Error>> {
     match conf {
-        PrimitiveConfig::Mesh {location, material} => {
+        PrimitiveConfig::Mesh {material, location} => {
+            let material = try!(materials.get(&material).ok_or(ParseSceneError {
+                description: format!("No such material: {}", material)
+            }));
             let mut file = try!(fs::File::open(&location).map(io::BufReader::new));
             let mesh = try!(Mesh::from_obj(&mut file));
-            Ok(Primitive::new(mesh, Material::from(material)))
+            Ok(Primitive::new(mesh, material.clone()))
         },
-        PrimitiveConfig::Plane {position, normal, material} =>
-            Ok(Primitive::new(Plane::new(position, normal), Material::from(material)))
+        PrimitiveConfig::Plane {material, position, normal} => {
+            let material = try!(materials.get(&material).ok_or(ParseSceneError {
+                description: format!("No such material: {}", material)
+            }));
+            Ok(Primitive::new(Plane::new(position, normal), material.clone()))
+        }
     }
 }

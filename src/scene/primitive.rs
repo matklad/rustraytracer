@@ -1,3 +1,4 @@
+use std::rc::Rc;
 use std::cmp::Ordering;
 
 
@@ -8,11 +9,11 @@ use super::material::Material;
 
 pub struct Primitive {
     pub shape: Box<Shape>,
-    pub material: Material
+    pub material: Rc<Material>
 }
 
 impl Primitive {
-    pub fn new<S>(shape: S, material: Material) -> Primitive
+    pub fn new<S>(shape: S, material: Rc<Material>) -> Primitive
         where S: Shape + 'static
     {
         Primitive {

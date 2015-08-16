@@ -20,12 +20,12 @@ impl<T: Copy> Texture<T> for ConstTextute<T> {
     }
 }
 
-pub struct CheckBoard3d<T: Copy> {
+pub struct Checkboard3d<T: Copy> {
     black: T,
     white: T,
 }
 
-impl<T: Copy> Texture<T> for CheckBoard3d<T> {
+impl<T: Copy> Texture<T> for Checkboard3d<T> {
     fn at(&self, i: &shape::Intersection) -> T {
         let p = i.point;
         let is_odd = |f| if (f % 2.0 + 2.0) % 2.0 > 1.0 { 1 } else { 0 };
@@ -36,19 +36,31 @@ impl<T: Copy> Texture<T> for CheckBoard3d<T> {
 
 #[derive(RustcDecodable)]
 pub struct MaterialConfig {
-    color: Color,
-    diffuse: f64,
     specular: f64,
+    diffuse: f64,
+    texture: TextureConfig
+}
+
+#[derive(RustcDecodable)]
+enum TextureConfig {
+    Checkboard3d(Color, Color),
+    Color(Color)
 }
 
 
 impl From<MaterialConfig> for Material {
     fn from(config: MaterialConfig) -> Material {
+        let color: Box<Texture<Color>> = match config.texture {
+            TextureConfig::Checkboard3d(black, white) => Box::new(
+                Checkboard3d {
+                    black: black,
+                    white: white
+                }),
+            TextureConfig::Color(c) => Box::new(ConstTextute(c))
+        };
+
         Material {
-            color: Box::new(CheckBoard3d {
-                black: config.color,
-                white: Color::from("#0A0")
-            }),
+            color: color,
             diffuse: config.diffuse,
             specular: config.specular
         }

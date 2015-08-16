@@ -9,25 +9,42 @@
     },
     "ambient_light": "#444",
     "background_color": "#115",
+
+    "materials": {
+      "teapot": {
+        "specular": 4,
+        "diffuse": 0.9,
+        "texture": {
+          "variant": "Checkboard3d",
+          "fields": ["#00B", "#BB0"]
+        }
+      },
+      "plain": {
+        "specular": 4,
+        "diffuse": 0.9,
+        "texture": {
+          "variant": "Color",
+          "fields": ["#BFEBBF"]
+        }
+      }
+    },
+
     "primitives": [
       {"variant": "Mesh",
        "fields": [
-         "./utah.obj",
-         {"color": "#444",
-          "specular": 4,
-          "diffuse": 0.9}
+         "teapot",
+         "./utah.obj"
        ]
       },
       {"variant": "Plane",
        "fields": [
+         "plain",
          [0, -8, 0],
-         [0, 1, 0],
-         {"color": "#811",
-          "specular": 4,
-          "diffuse": 0.9}
+         [0, 1, 0]
        ]
       }
     ],
+
     "lights": [
       {"position": [80, 80, 50],
        "color": "#BBB"}
