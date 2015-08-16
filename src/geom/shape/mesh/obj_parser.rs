@@ -1,4 +1,4 @@
-use std::{io, fmt};
+use std::{io, fmt, num};
 use std::error::Error;
 
 use geom::{Point, UnitVector, Vector};
@@ -65,10 +65,29 @@ impl ObjParser {
         Ok(())
     }
 
-    fn parse_face(&mut self, s: &str) -> Result<(), Box<Error>> {
+    fn parse_face_simple(&mut self, s: &str) -> Result<(), Box<Error>> {
+        let inds: Vec<usize> = try!(s.split_whitespace()
+            .skip(1)
+            .map(read_index)
+            .collect());
+
+        if inds.len() != 3 {
+            return Err(Box::new(ParseObjError));
+        }
+        let (a, b, c) = (self.points[inds[0]],
+                         self.points[inds[1]],
+                         self.points[inds[2]]);
+        if Triangle::are_valid_points(a, b, c) {
+            let f = Triangle::new(a, b, c);
+            self.faces.push(f);
+        }
+        Ok(())
+    }
+
+    fn parse_face_normals(&mut self, s: &str) -> Result<(), Box<Error>> {
         fn read_group(s: &str) -> Result<(usize, usize, usize), Box<Error>> {
             let inds = try!(s.split('/')
-                            .map(|i| i.parse::<usize>().map(|x| x - 1))
+                            .map(|s| read_index(s))
                             .collect::<Result<Vec<_>, _>>());
             if inds.len() != 3 {
                 return Err(Box::new(ParseObjError));
@@ -84,12 +103,25 @@ impl ObjParser {
         if verts.len() != 3 {
             return Err(Box::new(ParseObjError));
         }
-        let f = Triangle::with_normals(
-            self.points[verts[0].0], self.points[verts[1].0], self.points[verts[2].0],
-            [self.normals[verts[0].2], self.normals[verts[1].2], self.normals[verts[2].2]]);
+        let (a, b, c) = (self.points[verts[0].0],
+                         self.points[verts[1].0],
+                         self.points[verts[2].0]);
+        if Triangle::are_valid_points(a, b, c) {
+            let f = Triangle::with_normals(
+                self.points[verts[0].0], self.points[verts[1].0], self.points[verts[2].0],
+                [self.normals[verts[0].2], self.normals[verts[1].2], self.normals[verts[2].2]]);
 
-        self.faces.push(f);
+            self.faces.push(f);
+        }
         Ok(())
+    }
+
+    fn parse_face(&mut self, s: &str) -> Result<(), Box<Error>> {
+        if s.contains('/') {
+            self.parse_face_normals(s)
+        } else {
+            self.parse_face_simple(s)
+        }
     }
 
     fn parse_coordinates(s: &str) -> Result<(f64, f64, f64), Box<Error>> {
@@ -103,4 +135,8 @@ impl ObjParser {
 
         Ok((coords[0], coords[1], coords[2]))
     }
+}
+
+fn read_index(s: &str) -> Result<usize, num::ParseIntError> {
+    s.parse::<usize>().map(|i| i - 1)
 }

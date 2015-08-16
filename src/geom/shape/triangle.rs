@@ -12,6 +12,13 @@ pub struct Triangle {
 }
 
 impl Triangle {
+    pub fn are_valid_points(a: Point, b: Point, c: Point) -> bool {
+        let ab = b - a;
+        let ac = c - a;
+        let n = ab.cross(ac);
+        n.length() != 0.0
+    }
+
     pub fn new(a: Point, b: Point, c: Point) -> Triangle {
         let ab = b - a;
         let ac = c - a;

@@ -1,8 +1,8 @@
 {
   "scene": {
     "camera": {
-      "position": [0, 40, 90],
-      "look_at": [0, 0, 0],
+      "position": [0, 20, 40],
+      "look_at": [0, 0, -10],
       "focus_distance": 80,
       "up": [0, 0, -1],
       "size": [40, 30]
@@ -19,48 +19,43 @@
           "fields": ["#00B", "#BB0"]
         }
       },
-      "plane": {
+      "buddha": {
         "specular": 4,
         "diffuse": 0.9,
         "texture": {
           "variant": "Color",
-          "fields": ["#BFEBBF"]
+          "fields": ["#AA0"]
         }
       }
     },
     "primitives": [
       {"variant": "Mesh",
        "fields": [
-         "teapot",
-         "./utah.obj"
-       ]
-      },
-      {"variant": "Plane",
-       "fields": [
-         "plane",
-         [0, -8.1, 0],
-         [0, 1, 0]
+         "buddha",
+         "./models/buddha.obj"
        ]
       }
     ],
-
     "lights": [
       {"position": [80, 80, 50],
-       "color": "#BBB"}
+       "color": "#BBB"},
+      {"position": [-80, 80, 50],
+       "color": "#999"}
+
     ]
   },
 
   "rendering": {
-    "resolution": [640, 480],
+    "resolution": [800, 600],
     "sampler": {
       "variant": "Stratified",
-      "fields": [2, true]
+      "fields": [1, false]
     },
     "filter": {
       "extent": [0.5, 0.5],
       "function": {
-        "variant": "Gauss",
-        "fields": [1]
+        "variant": "Box",
+        "fields": []
       }
     }
   }
