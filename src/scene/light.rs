@@ -1,5 +1,5 @@
 use color::Color;
-use geom::{Point};
+use geom::{Point, UnitVector, Dot};
 
 
 pub struct LightSource {
@@ -15,8 +15,10 @@ impl LightSource {
     }
 
     pub fn illuminate(&self, p: Point) -> Color {
-        let distance = (p - self.position()).length();
-        let coef = self.intensity * self.source.intensity_at(p) / distance.sqrt();
+        let v = p - self.position();
+        let distance = v.length();
+        let direction = v.direction();
+        let coef = self.intensity * self.source.intensity_at(direction) / distance.sqrt();
         return self.color * coef
     }
 }
@@ -27,23 +29,46 @@ pub struct LightConfig {
     color: Color,
     intensity: f64,
     position: Point,
+    kind: LightKind,
+}
+
+#[derive(Debug, RustcDecodable)]
+enum LightKind {
+    PointLight,
+    SpotLight {
+        look_at: Point,
+        inner_angle: f64,
+        outer_angle: f64,
+    },
 }
 
 
 impl From<LightConfig> for LightSource {
     fn from(config: LightConfig) -> LightSource {
+        let source: Box<LightSourceImpl> = match config.kind {
+            LightKind::PointLight => Box::new(PointLight),
+            LightKind::SpotLight {look_at, inner_angle, outer_angle} =>  {
+                assert!(inner_angle <= outer_angle);
+                let direction = (look_at - config.position).direction();
+                Box::new(SpotLight {
+                    direction: direction,
+                    inner_cos: inner_angle.cos(),
+                    outer_cos: outer_angle.cos(),
+                })
+            }
+        };
         LightSource {
             color: config.color,
             intensity: config.intensity,
             position: config.position,
-            source: Box::new(PointLight),
+            source: source,
         }
     }
 }
 
 
 trait LightSourceImpl {
-    fn intensity_at(&self, p: Point) -> f64;
+    fn intensity_at(&self, d: UnitVector) -> f64;
 }
 
 
@@ -51,7 +76,35 @@ struct PointLight;
 
 
 impl LightSourceImpl for PointLight {
-    fn intensity_at(&self, _p: Point) -> f64 {
+    fn intensity_at(&self, _d: UnitVector) -> f64 {
         1.0
+    }
+}
+
+struct SpotLight {
+    direction: UnitVector,
+    outer_cos: f64,
+    inner_cos: f64,
+}
+
+impl SpotLight {
+    fn cos(&self, d: UnitVector) -> f64 {
+        return self.direction.dot(d)
+    }
+}
+
+impl LightSourceImpl for SpotLight {
+    fn intensity_at(&self, d: UnitVector) -> f64 {
+        let cos = self.cos(d);
+        if cos < self.outer_cos {
+            return 0.0;
+        }
+
+        if self.inner_cos < cos {
+            return 1.0;
+        }
+        let t = (self.outer_cos - cos) / (self.outer_cos - self.inner_cos);
+        assert!(0.0 <= t && t <= 1.0);
+        t
     }
 }

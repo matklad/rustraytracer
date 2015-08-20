@@ -44,12 +44,16 @@
       }
     ],
     "lights": [
-      {"position": [-10, 30, 40],
-       "intensity": 3,
-       "color": "#AAA"},
       {"position": [10, 30, 40],
        "intensity": 5,
-       "color": "#FFF"}
+       "color": "#FFF",
+       "kind": {
+         "variant": "SpotLight",
+         "fields": [
+           [0, 0, 0],
+           0.18,
+           0.2
+         ]}}
     ]
   },
 

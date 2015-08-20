@@ -24,4 +24,4 @@ follows.
   * `src/display` -- utilities to display the image (as PPM or to the console).
 
 
-![utah teapot](utah.png)
+![example](example.png)
