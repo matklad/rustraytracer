@@ -15,8 +15,9 @@ use geom::ray::Ray;
 use color::Color;
 use self::camera::{Camera, CameraConfig};
 use self::material::MaterialConfig;
+use self::light::LightConfig;
 
-pub use self::light::Light;
+pub use self::light::LightSource;
 pub use self::primitive::{Primitive, Intersection};
 pub use self::camera::ScreenPoint;
 pub use self::material::{Texture, Material};
@@ -27,7 +28,7 @@ pub struct Scene {
     pub ambient_light: Color,
     pub background_color: Color,
     pub primitives: Vec<Primitive>,
-    pub lights: Vec<Light>,
+    pub lights: Vec<LightSource>,
 }
 
 
@@ -40,13 +41,16 @@ impl Scene {
         let primitives = try!(config.primitives.into_iter()
                               .map(|p| read_primitive(p, &materials))
                               .collect::<Result<Vec<Primitive>, _>>());
+        let lights = config.lights.into_iter()
+            .map(LightSource::from)
+            .collect();
 
         Ok(Scene {
             camera: Camera::new(config.camera),
             ambient_light: config.ambient_light,
             background_color: config.background_color,
             primitives: primitives,
-            lights: config.lights,
+            lights: lights,
         })
     }
 
@@ -72,7 +76,7 @@ pub struct SceneConfig {
     background_color: Color,
     materials: HashMap<String, MaterialConfig>,
     primitives: Vec<PrimitiveConfig>,
-    lights: Vec<Light>
+    lights: Vec<LightConfig>
 }
 
 

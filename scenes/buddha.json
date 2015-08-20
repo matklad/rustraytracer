@@ -7,7 +7,7 @@
       "up": [0, 1, 0],
       "size": [40, 30]
     },
-    "ambient_light": "#444",
+    "ambient_light": "#000",
     "background_color": "#115",
 
     "materials": {
@@ -44,11 +44,12 @@
       }
     ],
     "lights": [
-      {"position": [80, 80, 50],
-       "color": "#BBB"},
-      {"position": [-80, 80, 50],
-       "color": "#999"}
-
+      {"position": [-10, 30, 40],
+       "intensity": 3,
+       "color": "#AAA"},
+      {"position": [10, 30, 40],
+       "intensity": 5,
+       "color": "#FFF"}
     ]
   },
 

@@ -6,7 +6,7 @@ mod config;
 use color::Color;
 use datastructures::Matrix;
 use geom::{UnitVector, Dot};
-use scene::{Intersection, Light, Scene, Texture};
+use scene::{Intersection, Scene, Texture};
 use self::filters::Filter;
 use self::samplers::{Sampler, StratifiedSampler};
 
@@ -56,48 +56,53 @@ impl<'a> Tracer<'a> {
 
         for light in visible_lights {
             let light_direction = light.position().direction_to(intersection.geom.point);
+            let illumination = light.illuminate(intersection.geom.point);
             result = result
-                + intersection.colorize_diffuse(&light, light_direction)
-                + intersection.colorize_specular(view_direction, &light, light_direction);
+                + intersection.colorize_diffuse(illumination, light_direction)
+                + intersection.colorize_specular(illumination, light_direction, view_direction);
         }
         result
     }
 }
 
 trait IntersectionExt {
-    fn colorize_ambient(&self, ambient: Color) -> Color;
+    fn colorize_ambient(&self, illumination: Color) -> Color;
 
     fn colorize_diffuse(&self,
-                        light: &Light,
-                        light_direction: UnitVector) -> Color;
+                        illumination: Color,
+                        light_direction: UnitVector)
+                        -> Color;
 
     fn colorize_specular(&self,
-                         view_direction: UnitVector,
-                         light: &Light,
-                         light_direction: UnitVector) -> Color;
+                         illumination: Color,
+                         light_direction: UnitVector,
+                         view_direction: UnitVector)
+                         -> Color;
 }
 
 
 impl<'a> IntersectionExt for Intersection<'a> {
-    fn colorize_ambient(&self, ambient: Color) -> Color {
-        self.primitive.material.color.at(&self.geom) * ambient
+    fn colorize_ambient(&self, illumination: Color) -> Color {
+        self.primitive.material.color.at(&self.geom) * illumination
     }
 
     fn colorize_diffuse(&self,
-                        light: &Light,
-                        light_direction: UnitVector) -> Color {
+                        illumination: Color,
+                        light_direction: UnitVector)
+                        -> Color {
 
         let k = (-light_direction.dot(self.geom.normal)).max(0.0) * self.primitive.material.diffuse;
-        self.primitive.material.color.at(&self.geom) * light.color() * k
+        self.primitive.material.color.at(&self.geom) * illumination * k
     }
 
     fn colorize_specular(&self,
-                         view_direction: UnitVector,
-                         light: &Light,
-                         light_direction: UnitVector) -> Color {
+                         illumination: Color,
+                         light_direction: UnitVector,
+                         view_direction: UnitVector)
+                         -> Color {
 
         let r = light_direction.reflect(self.geom.normal);
         let k = (-r.dot(view_direction)).max(0.0).powf(self.primitive.material.specular);
-        light.color() * k
+        illumination * k
     }
 }
