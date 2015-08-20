@@ -1,22 +1,22 @@
 {
   "scene": {
     "camera": {
-      "position": [0, 20, 40],
-      "look_at": [0, 0, -10],
+      "position": [0, 10, 40],
+      "look_at": [0, 5, 0],
       "focus_distance": 80,
-      "up": [0, 0, -1],
+      "up": [0, 1, 0],
       "size": [40, 30]
     },
     "ambient_light": "#444",
     "background_color": "#115",
 
     "materials": {
-      "teapot": {
+      "plane": {
         "specular": 4,
         "diffuse": 0.9,
         "texture": {
-          "variant": "Checkboard3d",
-          "fields": ["#00B", "#BB0"]
+          "variant": "Color",
+          "fields": ["#555"]
         }
       },
       "buddha": {
@@ -32,7 +32,14 @@
       {"variant": "Mesh",
        "fields": [
          "buddha",
-         "./models/buddha.obj"
+         "./scenes/models/buddha.obj"
+       ]
+      },
+      {"variant": "Plane",
+       "fields": [
+         "plane",
+         [0, 0, 0],
+         [0, 1, 0]
        ]
       }
     ],

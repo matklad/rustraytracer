@@ -12,7 +12,7 @@ use rustraytracer::display::{PpmWriter, ImageDisplay};
 use rustraytracer::scene::{Scene, SceneConfig};
 use rustraytracer::rendering::{Tracer, TracerConfig};
 
-#[derive(RustcDecodable)]
+#[derive(Debug, RustcDecodable)]
 struct Config {
     scene: SceneConfig,
     rendering: TracerConfig,
@@ -31,7 +31,7 @@ fn main() {
     println!("Start rendering...");
     let start = time::precise_time_s();
 
-    let conf: Config = json::decode(&read_scene_description("./scene.json")).unwrap();
+    let conf: Config = json::decode(&read_scene_description("./scenes/buddha.json")).unwrap();
     let scene = Scene::new(conf.scene).unwrap();
     let renderer = Tracer::new(&scene, conf.rendering);
 

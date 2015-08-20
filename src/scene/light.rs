@@ -1,7 +1,7 @@
 use color::Color;
 use geom::{Point};
 
-#[derive(RustcDecodable)]
+#[derive(Debug, RustcDecodable)]
 pub struct Light {
     color: Color,
     position: Point

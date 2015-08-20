@@ -34,14 +34,14 @@ impl<T: Copy> Texture<T> for Checkboard3d<T> {
 }
 
 
-#[derive(RustcDecodable)]
+#[derive(Debug, RustcDecodable)]
 pub struct MaterialConfig {
     specular: f64,
     diffuse: f64,
     texture: TextureConfig
 }
 
-#[derive(RustcDecodable)]
+#[derive(Debug, RustcDecodable)]
 enum TextureConfig {
     Checkboard3d(Color, Color),
     Color(Color)

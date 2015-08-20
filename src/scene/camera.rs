@@ -37,7 +37,7 @@ pub struct Camera {
 }
 
 
-#[derive(RustcDecodable)]
+#[derive(Debug, RustcDecodable)]
 pub struct CameraConfig {
     pub position: Point,
     pub look_at: Point,

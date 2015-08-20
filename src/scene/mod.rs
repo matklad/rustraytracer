@@ -65,7 +65,7 @@ impl Scene {
     }
 }
 
-#[derive(RustcDecodable)]
+#[derive(Debug, RustcDecodable)]
 pub struct SceneConfig {
     camera: CameraConfig,
     ambient_light: Color,
@@ -76,7 +76,7 @@ pub struct SceneConfig {
 }
 
 
-#[derive(RustcDecodable)]
+#[derive(Debug, RustcDecodable)]
 pub enum PrimitiveConfig {
     Mesh {
         material: String,
