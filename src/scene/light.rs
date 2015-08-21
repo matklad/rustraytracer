@@ -1,5 +1,6 @@
 use color::Color;
 use geom::{Point, UnitVector, Dot};
+use super::config::{LightConfig, LightKind};
 
 
 pub struct LightSource {
@@ -21,25 +22,6 @@ impl LightSource {
         let coef = self.intensity * self.source.intensity_at(direction) / distance.sqrt();
         return self.color * coef
     }
-}
-
-
-#[derive(Debug, RustcDecodable)]
-pub struct LightConfig {
-    color: Color,
-    intensity: f64,
-    position: Point,
-    kind: LightKind,
-}
-
-#[derive(Debug, RustcDecodable)]
-enum LightKind {
-    PointLight,
-    SpotLight {
-        look_at: Point,
-        inner_angle: f64,
-        outer_angle: f64,
-    },
 }
 
 

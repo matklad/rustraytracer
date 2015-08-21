@@ -8,18 +8,18 @@
       "size": [40, 30]
     },
     "ambient_light": "#000",
-    "background_color": "#115",
+    "background_color": "#000",
 
     "materials": {
-      "plane": {
-        "specular": 4,
+      "water": {
+        "specular": 1,
         "diffuse": 0.9,
         "texture": {
           "variant": "Color",
-          "fields": ["#555"]
+          "fields": ["#118"]
         }
       },
-      "buddha": {
+      "gold": {
         "specular": 4,
         "diffuse": 0.9,
         "texture": {
@@ -29,18 +29,22 @@
       }
     },
     "primitives": [
-      {"variant": "Mesh",
-       "fields": [
-         "buddha",
-         "./scenes/models/buddha.obj"
-       ]
+      {
+        "kind": {
+          "variant": "Mesh",
+          "fields": ["./scenes/models/buddha.obj"]
+        },
+        "material": "gold"
       },
-      {"variant": "Plane",
-       "fields": [
-         "plane",
-         [0, 0, 0],
-         [0, 1, 0]
-       ]
+      {
+        "kind": {
+          "variant": "Sphere",
+          "fields": [
+            [0, -30, 0],
+            30.1
+          ]
+        },
+        "material": "water"
       }
     ],
     "lights": [

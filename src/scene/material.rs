@@ -1,5 +1,6 @@
 use geom::shape;
 use color::Color;
+use super::config::{MaterialConfig, TextureConfig};
 
 pub struct Material {
     pub color: Box<Texture<Color>>,
@@ -31,20 +32,6 @@ impl<T: Copy> Texture<T> for Checkboard3d<T> {
         let is_odd = |f| if (f % 2.0 + 2.0) % 2.0 > 1.0 { 1 } else { 0 };
         [self.black, self.white][(is_odd(p[0]) ^ is_odd(p[1]) ^ is_odd(p[2])) as usize]
     }
-}
-
-
-#[derive(Debug, RustcDecodable)]
-pub struct MaterialConfig {
-    specular: f64,
-    diffuse: f64,
-    texture: TextureConfig
-}
-
-#[derive(Debug, RustcDecodable)]
-enum TextureConfig {
-    Checkboard3d(Color, Color),
-    Color(Color)
 }
 
 
