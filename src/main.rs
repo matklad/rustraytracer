@@ -11,6 +11,7 @@ use rustc_serialize::json;
 use rustraytracer::display::{PpmWriter, ImageDisplay};
 use rustraytracer::scene::{Scene, SceneConfig};
 use rustraytracer::rendering::{Tracer, TracerConfig};
+use rustraytracer::utils::time_it;
 
 #[derive(Debug, RustcDecodable)]
 struct Config {
@@ -30,17 +31,20 @@ fn read_scene_description(path: &str) -> String {
 fn main() {
     println!("Start rendering...");
     let start = time::precise_time_s();
+    let ((scene, conf), prep_time) = time_it(|| {
+        let conf: Config = json::decode(&read_scene_description("./scenes/buddha.json")).unwrap();
+        let scene = Scene::new(conf.scene).unwrap();
+        (scene, conf.rendering)
+    });
+    let tracer = Tracer::new(&scene, conf);
 
-    let conf: Config = json::decode(&read_scene_description("./scenes/buddha.json")).unwrap();
-    let scene = Scene::new(conf.scene).unwrap();
-    let renderer = Tracer::new(&scene, conf.rendering);
-
-    let image = renderer.render();
+    let (image, stats) = tracer.render();
     let path = "./out.ppm";
     let mut file = io::BufWriter::new(fs::File::create(path).unwrap());
     let mut display = PpmWriter::new(&mut file);
     display.draw(&image).unwrap();
 
     let end = time::precise_time_s();
-    println!("Done! {:.2} seconds", end - start);
+    println!("\nPreprocess:  {:.2}s\n{}\n\nTotal: {:.2} seconds",
+             prep_time, stats, end - start);
 }

@@ -3,7 +3,7 @@ use geom::ray::Ray;
 use super::{Shape, Intersection};
 use super::bound_box::{Bound, BoundBox};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Triangle {
     a: Point,
     ab: Vector,

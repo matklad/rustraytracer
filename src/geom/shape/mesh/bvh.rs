@@ -7,8 +7,8 @@ use geom::ray::Ray;
 use geom::shape::{Intersection, Shape};
 use geom::shape::bound_box::{BoundBox, Bound};
 
-pub trait BoundedShape: Shape + Bound {}
-impl<T: Shape + Bound> BoundedShape for T {}
+pub trait BoundedShape: Shape + Bound + Clone {}
+impl<T: Shape + Bound + Clone> BoundedShape for T {}
 
 
 enum Node<T: BoundedShape> {
@@ -39,11 +39,11 @@ impl<T: BoundedShape> Node<T> {
     }
 
 
-    fn build(shapes: Vec<(T, BoundBox)>) -> Node<T> {
+    fn build(shapes: Vec<(&T, BoundBox)>) -> Node<T> {
         assert!(shapes.len() > 0);
         if shapes.len() == 1 {
             let (shape, bound) = shapes.into_iter().next().unwrap();
-            Node::Leaf {shape: shape, bound: bound }
+            Node::Leaf {shape: (*shape).clone(), bound: bound }
         } else {
             let (left, right, axis) = Node::partition(shapes);
             Node::interior(
@@ -53,19 +53,19 @@ impl<T: BoundedShape> Node<T> {
         }
     }
 
-    fn partition(mut shapes: Vec<(T, BoundBox)>)
-                 -> (Vec<(T, BoundBox)>, Vec<(T, BoundBox)>, Axis) {
+    fn partition(mut shapes: Vec<(&T, BoundBox)>)
+                 -> (Vec<(&T, BoundBox)>, Vec<(&T, BoundBox)>, Axis) {
 
         let axis = shapes.iter().map(|&(_, ref bound)| bound.center())
             .collect::<BoundBox>()
             .longext_axis();
 
-        let key = |&(_, ref bound): &(T, BoundBox)| bound.center()[axis];
+        let key = |&(_, ref bound): &(&T, BoundBox)| bound.center()[axis];
         shapes.sort_by(|a, b| key(a).partial_cmp(&key(b)).unwrap());
         // TODO: use SAH
         let mid = shapes.len() / 2;
-        let mut l = Vec::new();
-        let mut r = Vec::new();
+        let mut l = Vec::with_capacity(mid + 1);
+        let mut r = Vec::with_capacity(mid + 1);
         for (i, item) in shapes.into_iter().enumerate() {
             if i < mid {
                 l.push(item);
@@ -83,13 +83,11 @@ pub struct Bvh<T: BoundedShape> {
 
 impl<T: BoundedShape> Bvh<T>  {
     pub fn new(triangles: Vec<T>) -> Bvh<T> {
-        let with_bounds = triangles.into_iter()
-            .map(|t| {
-                let bound = t.bound();
-                (t, bound)
-            }).collect();
+        let with_bounds = triangles.iter()
+            .map(|t| (t, t.bound())).collect();
+        let root = Node::<T>::build(with_bounds);
         Bvh {
-            root: Node::<T>::build(with_bounds)
+            root: root
         }
     }
 

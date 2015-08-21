@@ -3,10 +3,13 @@ mod utils;
 mod filters;
 mod config;
 
+use std::fmt;
+
 use color::Color;
 use datastructures::Matrix;
 use geom::{UnitVector, Dot};
 use scene::{Intersection, Scene, Texture};
+use utils::time_it;
 use self::filters::Filter;
 use self::samplers::{Sampler, StratifiedSampler};
 
@@ -18,11 +21,25 @@ pub type Pixel = [u32; 2];
 pub type Image = Matrix<Color>;
 
 
+pub struct TracingStats {
+    pub rendering_time: f64,
+    pub filtering_time: f64
+}
+
+impl fmt::Display for TracingStats {
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        write!(formatter, "Rendering:   {:.2}s\nFiltering:   {:.2}s",
+               self.rendering_time, self.filtering_time)
+    }
+
+}
+
 pub struct Tracer<'a> {
     scene: &'a Scene,
     sampler: Box<Sampler>,
     filter: Box<Filter>,
 }
+
 
 
 impl<'a> Tracer<'a> {
@@ -34,8 +51,10 @@ impl<'a> Tracer<'a> {
         }
     }
 
-    pub fn render(&self) -> Image {
-        let samples = self.sampler.sample()
+    pub fn render(&self) -> (Image, TracingStats) {
+
+        let (samples, rendering_time) = time_it(|| {
+            self.sampler.sample()
             .into_iter()
             .map(|s| {
                 let ray = self.scene.camera.cast_ray(s.pixel);
@@ -44,9 +63,12 @@ impl<'a> Tracer<'a> {
                     None => self.scene.background_color
                 };
                 (s, radiance)
-            }).collect();
+            }).collect()
+        });
 
-        self.filter.apply(&samples)
+        let (image, filtering_time) = time_it(|| self.filter.apply(&samples));
+        (image, TracingStats {rendering_time: rendering_time,
+                              filtering_time: filtering_time})
     }
 
     fn colorize(&self, view_direction: UnitVector, intersection: &Intersection) -> Color {
