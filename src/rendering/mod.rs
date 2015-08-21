@@ -8,6 +8,7 @@ use std::fmt;
 use color::Color;
 use datastructures::Matrix;
 use geom::{UnitVector, Dot};
+use geom::ray::Ray;
 use scene::{Intersection, Scene, Texture};
 use utils::time_it;
 use self::filters::Filter;
@@ -58,17 +59,20 @@ impl<'a> Tracer<'a> {
             .into_iter()
             .map(|s| {
                 let ray = self.scene.camera.cast_ray(s.pixel);
-                let radiance = match self.scene.find_obstacle(&ray) {
-                    Some(ref intersection) => self.colorize(ray.direction, intersection),
-                    None => self.scene.background_color
-                };
-                (s, radiance)
+                (s, self.radiace(&ray))
             }).collect()
         });
 
         let (image, filtering_time) = time_it(|| self.filter.apply(&samples));
         (image, TracingStats {rendering_time: rendering_time,
                               filtering_time: filtering_time})
+    }
+
+    pub fn radiace(&self, ray: &Ray) -> Color {
+        match self.scene.find_obstacle(ray) {
+            Some(ref intersection) => self.colorize(ray.direction, intersection),
+            None => self.scene.background_color
+        }
     }
 
     fn colorize(&self, view_direction: UnitVector, intersection: &Intersection) -> Color {
