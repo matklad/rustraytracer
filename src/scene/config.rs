@@ -36,7 +36,8 @@ pub struct CameraConfig {
 pub struct MaterialConfig {
     pub specular: f64,
     pub diffuse: f64,
-    pub texture: TextureConfig
+    pub texture: TextureConfig,
+    pub reflectance: f64,
 }
 
 

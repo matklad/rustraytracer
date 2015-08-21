@@ -8,7 +8,7 @@ mod primitive;
 use std::rc::Rc;
 use std::error::Error;
 
-use geom::Point;
+use geom::{Point, UnitVector};
 use geom::shape::Shape;
 use geom::ray::Ray;
 use color::Color;
@@ -57,7 +57,19 @@ impl Scene {
         let ray = Ray::from_to(from.geom.point, what);
         let ray = Ray::from_to(ray.along(1e-6) , what);
         // FIXME: what if obstacle is behind a light source?
-        self.find_obstacle(&ray).is_none()
+        match self.find_obstacle(&ray) {
+            None => true,
+            Some(i) => {
+                i.geom.t > (from.geom.point - what).length()
+            }
+        }
+    }
+
+    pub fn ray_from(&self, from: &Intersection, direction: UnitVector) -> Ray {
+        Ray {
+            origin: from.geom.point + direction * 1e-6,
+            direction: direction
+        }
     }
 
     pub fn find_obstacle(&self, ray: &Ray) -> Option<Intersection> {

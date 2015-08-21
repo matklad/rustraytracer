@@ -39,6 +39,7 @@ pub struct Tracer<'a> {
     scene: &'a Scene,
     sampler: Box<Sampler>,
     filter: Box<Filter>,
+    n_reflections: u32,
 }
 
 
@@ -48,7 +49,8 @@ impl<'a> Tracer<'a> {
         Tracer {
             scene: scene,
             sampler: Box::new(StratifiedSampler::new(config.resolution, config.sampler)),
-            filter: Box::new(Filter::new(config.resolution, config.filter))
+            filter: Box::new(Filter::new(config.resolution, config.filter)),
+            n_reflections: config.n_reflections,
         }
     }
 
@@ -59,7 +61,7 @@ impl<'a> Tracer<'a> {
             .into_iter()
             .map(|s| {
                 let ray = self.scene.camera.cast_ray(s.pixel);
-                (s, self.radiace(&ray))
+                (s, self.radiace(&ray, 0))
             }).collect()
         });
 
@@ -68,9 +70,23 @@ impl<'a> Tracer<'a> {
                               filtering_time: filtering_time})
     }
 
-    pub fn radiace(&self, ray: &Ray) -> Color {
+    pub fn radiace(&self, ray: &Ray, level: u32) -> Color {
         match self.scene.find_obstacle(ray) {
-            Some(ref intersection) => self.colorize(ray.direction, intersection),
+            Some(ref intersection) => {
+                let arrived_light = self.colorize(ray.direction, intersection);
+                let reflectance = intersection.primitive.material.reflectance;
+                let has_reflection = level < self.n_reflections
+                    && reflectance > 0.0;
+                let reflected_light = if has_reflection  {
+                    let refl_dir = ray.direction.reflect(intersection.geom.normal);
+                    let reflected_ray = self.scene.ray_from(intersection, refl_dir);
+                    self.radiace(&reflected_ray, level + 1) * reflectance
+                } else {
+                    Color::new(0.0, 0.0, 0.0)
+                };
+
+                arrived_light + reflected_light
+            },
             None => self.scene.background_color
         }
     }

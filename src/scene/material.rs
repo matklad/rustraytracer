@@ -5,7 +5,8 @@ use super::config::{MaterialConfig, TextureConfig};
 pub struct Material {
     pub color: Box<Texture<Color>>,
     pub diffuse: f64,
-    pub specular: f64
+    pub specular: f64,
+    pub reflectance: f64,
 }
 
 
@@ -49,7 +50,8 @@ impl From<MaterialConfig> for Material {
         Material {
             color: color,
             diffuse: config.diffuse,
-            specular: config.specular
+            specular: config.specular,
+            reflectance: config.reflectance,
         }
     }
 }

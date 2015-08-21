@@ -4,7 +4,8 @@ use super::Pixel;
 pub struct TracerConfig {
     pub resolution: Pixel,
     pub sampler: SamplerConfig,
-    pub filter: FilterConfig
+    pub filter: FilterConfig,
+    pub n_reflections: u32
 }
 
 #[derive(Debug, RustcDecodable)]

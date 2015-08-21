@@ -14,6 +14,7 @@
       "water": {
         "specular": 1,
         "diffuse": 0.9,
+        "reflectance": 1,
         "texture": {
           "variant": "Color",
           "fields": ["#118"]
@@ -22,6 +23,7 @@
       "gold": {
         "specular": 4,
         "diffuse": 0.9,
+        "reflectance": 0,
         "texture": {
           "variant": "Color",
           "fields": ["#AA0"]
@@ -63,6 +65,7 @@
 
   "rendering": {
     "resolution": [800, 600],
+    "n_reflections": 1,
     "sampler": {
       "variant": "Stratified",
       "fields": [1, false]

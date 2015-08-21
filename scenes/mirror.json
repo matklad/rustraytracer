@@ -1,0 +1,107 @@
+{
+  "scene": {
+    "camera": {
+      "position": [10, 10, -40],
+      "look_at": [0, 5, 10],
+      "focus_distance": 80,
+      "up": [0, 1, 0],
+      "size": [40, 30]
+    },
+    "ambient_light": "#000",
+    "background_color": "#000",
+
+    "materials": {
+      "mirror": {
+        "specular": 0,
+        "diffuse": 0,
+        "reflectance": 0.8,
+        "texture": {
+          "variant": "Color",
+          "fields": ["#000"]
+        }
+      },
+      "board": {
+        "specular": 0,
+        "diffuse": 0.8,
+        "reflectance": 0,
+        "texture": {
+          "variant": "Checkboard3d",
+          "fields": ["#FFF", "#000"]
+        }
+      },
+      "gold": {
+        "specular": 4,
+        "diffuse": 0.9,
+        "reflectance": 0,
+        "texture": {
+          "variant": "Color",
+          "fields": ["#AA0"]
+        }
+      }
+    },
+    "primitives": [
+      {
+        "kind": {
+          "variant": "Mesh",
+          "fields": ["./scenes/models/buddha.obj"]
+        },
+        "material": "gold"
+      }
+      , {
+        "kind": {
+          "variant": "Plane",
+          "fields": [
+            [0, 0, 50],
+            [0, 0, -1]
+          ]
+        },
+        "material": "mirror"
+      }
+      , {
+        "kind": {
+          "variant": "Plane",
+          "fields": [
+            [0, 0.01, 0],
+            [0, 1, 0]
+          ]
+        },
+        "material": "board"
+      }
+
+    ],
+    "lights": [
+      {
+        "position": [20, 15, 20],
+        "intensity": 4,
+        "color": "#999",
+        "kind": {
+          "variant": "PointLight",
+          "fields": []}
+      },
+      {
+        "position": [10, 10, -40],
+        "intensity": 1,
+        "color": "#999",
+        "kind": {
+          "variant": "PointLight",
+          "fields": []}
+      }
+    ]
+  },
+
+  "rendering": {
+    "resolution": [800, 600],
+    "n_reflections": 1,
+    "sampler": {
+      "variant": "Stratified",
+      "fields": [2, true]
+    },
+    "filter": {
+      "extent": [0.5, 0.5],
+      "function": {
+        "variant": "Box",
+        "fields": []
+      }
+    }
+  }
+}
