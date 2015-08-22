@@ -1,3 +1,5 @@
+use std::ops::Range;
+
 use rand;
 
 use scene::ScreenPoint;
@@ -14,10 +16,12 @@ pub struct Sample {
 
 pub trait Sampler: Send + Sync {
     fn sample(&self) -> Vec<Sample>;
+    fn split(&self, n_parts: u16) -> Vec<Box<Sampler>>;
 }
 
 pub struct StratifiedSampler {
     resolution: Pixel,
+    range: Range<u32>,
     jitter: bool
 }
 
@@ -28,6 +32,7 @@ impl StratifiedSampler {
                 StratifiedSampler {
                     resolution: [resolution[0] * samples_per_pixel,
                                  resolution[1] * samples_per_pixel],
+                    range: 0..(resolution[1] * samples_per_pixel),
                     jitter: jitter
                 }
         }
@@ -37,7 +42,7 @@ impl StratifiedSampler {
 
 impl Sampler for StratifiedSampler {
     fn sample(&self) -> Vec<Sample> {
-        (0..self.resolution[0])
+        self.range.clone()
             .flat_map(|x| (0..self.resolution[1]).map(move |y| [x , y]))
             .map(|p| {
                 let jitter = if self.jitter {
@@ -52,5 +57,22 @@ impl Sampler for StratifiedSampler {
                     pixel: to_uniform(self.resolution, ScreenPoint::from(p) + jitter)
                 }
             }).collect()
+    }
+
+    fn split(&self, n_parts: u16) -> Vec<Box<Sampler>> {
+        let step_size = self.resolution[0] / n_parts as u32;
+        (0..n_parts).map(|i| {
+            let start = (i as u32) * step_size;
+            let stop = if i == n_parts - 1 {
+                self.resolution[0]
+            } else {
+                start + step_size
+            };
+
+            Box::new(StratifiedSampler {
+                resolution: self.resolution,
+                range: (start..stop),
+                jitter: self.jitter}) as Box<Sampler>
+        }).collect()
     }
 }

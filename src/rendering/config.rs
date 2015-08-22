@@ -6,7 +6,7 @@ pub struct TracerConfig {
     pub sampler: SamplerConfig,
     pub filter: FilterConfig,
     pub n_reflections: u32,
-    pub n_threads: u16,
+    pub n_threads: Option<u16>,
 }
 
 #[derive(Debug, RustcDecodable)]

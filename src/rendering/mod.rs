@@ -53,26 +53,19 @@ impl Tracer {
             sampler: Box::new(StratifiedSampler::new(config.resolution, config.sampler)),
             filter: Box::new(Filter::new(config.resolution, config.filter)),
             n_reflections: config.n_reflections,
-            n_threads: config.n_threads,
+            n_threads: config.n_threads.unwrap_or(8),
         }
     }
 
     pub fn render(self) -> (Image, TracingStats) {
-
+        let samplers = self.sampler.split(self.n_threads);
         let tracer = Arc::new(self);
         let (results, rendering_time) = time_it(|| {
-            let samples = tracer.sampler.sample();
-            let chunk_size = samples.len() / tracer.n_threads as usize;
-            let chunks: Vec<_> = samples
-                .chunks(chunk_size)
-                .map(|c| c.to_vec())
-                .collect();
-
-            let threads: Vec<_> = chunks.into_iter()
-                .map(|chunk| {
+            let threads: Vec<_> = samplers.into_iter()
+                .map(|sampler| {
                     let tracer = tracer.clone();
                     thread::spawn(move || {
-                        tracer.render_samples(&chunk)
+                        tracer.render_samples(&sampler.sample())
                     })
                 }).collect();
 
