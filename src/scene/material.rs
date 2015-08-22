@@ -10,13 +10,13 @@ pub struct Material {
 }
 
 
-pub trait Texture<T: Copy> {
+pub trait Texture<T: Copy + Send + Sync>: Send + Sync {
     fn at(&self, intersection: &shape::Intersection) -> T;
 }
 
 pub struct ConstTextute<T: Copy>(T);
 
-impl<T: Copy> Texture<T> for ConstTextute<T> {
+impl<T: Copy + Send + Sync> Texture<T> for ConstTextute<T> {
     fn at(&self, _: &shape::Intersection) -> T {
         return self.0
     }
@@ -27,7 +27,7 @@ pub struct Checkboard3d<T: Copy> {
     white: T,
 }
 
-impl<T: Copy> Texture<T> for Checkboard3d<T> {
+impl<T: Copy + Send + Sync> Texture<T> for Checkboard3d<T> {
     fn at(&self, i: &shape::Intersection) -> T {
         let p = i.point;
         let is_odd = |f| if (f % 2.0 + 2.0) % 2.0 > 1.0 { 1 } else { 0 };

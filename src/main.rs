@@ -36,7 +36,7 @@ fn main() {
         let scene = Scene::new(conf.scene).unwrap();
         (scene, conf.rendering)
     });
-    let tracer = Tracer::new(&scene, conf);
+    let tracer = Tracer::new(scene, conf);
 
     let (image, stats) = tracer.render();
     let path = "./out.ppm";

@@ -49,7 +49,7 @@ impl From<LightConfig> for LightSource {
 }
 
 
-trait LightSourceImpl {
+trait LightSourceImpl: Send + Sync {
     fn intensity_at(&self, d: UnitVector) -> f64;
 }
 

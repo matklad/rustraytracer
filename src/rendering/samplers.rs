@@ -12,7 +12,7 @@ pub struct Sample {
 }
 
 
-pub trait Sampler {
+pub trait Sampler: Send + Sync {
     fn sample(&self) -> Vec<Sample>;
 }
 

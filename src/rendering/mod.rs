@@ -3,7 +3,8 @@ mod utils;
 mod filters;
 mod config;
 
-use std::fmt;
+use std::{fmt, thread};
+use std::sync::Arc;
 
 use color::Color;
 use datastructures::Matrix;
@@ -12,7 +13,7 @@ use geom::ray::Ray;
 use scene::{Intersection, Scene, Texture};
 use utils::time_it;
 use self::filters::Filter;
-use self::samplers::{Sampler, StratifiedSampler};
+use self::samplers::{Sample, Sampler, StratifiedSampler};
 
 pub use self::config::TracerConfig;
 
@@ -35,39 +36,64 @@ impl fmt::Display for TracingStats {
 
 }
 
-pub struct Tracer<'a> {
-    scene: &'a Scene,
+pub struct Tracer {
+    scene: Scene,
     sampler: Box<Sampler>,
     filter: Box<Filter>,
     n_reflections: u32,
+    n_threads: u16,
 }
 
 
 
-impl<'a> Tracer<'a> {
-    pub fn new(scene: &Scene, config: TracerConfig) -> Tracer {
+impl Tracer {
+    pub fn new(scene: Scene, config: TracerConfig) -> Tracer {
         Tracer {
             scene: scene,
             sampler: Box::new(StratifiedSampler::new(config.resolution, config.sampler)),
             filter: Box::new(Filter::new(config.resolution, config.filter)),
             n_reflections: config.n_reflections,
+            n_threads: config.n_threads,
         }
     }
 
-    pub fn render(&self) -> (Image, TracingStats) {
+    pub fn render(self) -> (Image, TracingStats) {
 
-        let (samples, rendering_time) = time_it(|| {
-            self.sampler.sample()
-            .into_iter()
-            .map(|s| {
+        let tracer = Arc::new(self);
+        let (results, rendering_time) = time_it(|| {
+            let samples = tracer.sampler.sample();
+            let chunk_size = samples.len() / tracer.n_threads as usize;
+            let chunks: Vec<_> = samples
+                .chunks(chunk_size)
+                .map(|c| c.to_vec())
+                .collect();
+
+            let threads: Vec<_> = chunks.into_iter()
+                .map(|chunk| {
+                    let tracer = tracer.clone();
+                    thread::spawn(move || {
+                        tracer.render_samples(&chunk)
+                    })
+                }).collect();
+
+            let mut results = Vec::new();
+            for t in threads {
+                results.extend(t.join().unwrap().into_iter());
+            }
+            results
+        });
+
+        let (image, filtering_time) = time_it(|| tracer.filter.apply(&results));
+        (image, TracingStats {rendering_time: rendering_time,
+                              filtering_time: filtering_time})
+    }
+
+    fn render_samples(&self, samples: &[Sample]) -> Vec<(Sample, Color)> {
+        samples.into_iter()
+            .map(|&s| {
                 let ray = self.scene.camera.cast_ray(s.pixel);
                 (s, self.radiace(&ray, 0))
             }).collect()
-        });
-
-        let (image, filtering_time) = time_it(|| self.filter.apply(&samples));
-        (image, TracingStats {rendering_time: rendering_time,
-                              filtering_time: filtering_time})
     }
 
     pub fn radiace(&self, ray: &Ray, level: u32) -> Color {

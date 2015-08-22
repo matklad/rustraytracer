@@ -10,7 +10,7 @@ use super::config::{FilterConfig, FilterFunctionConfig};
 pub struct Filter {
     extent: ScreenPoint,
     resolution: Pixel,
-    weight: Box<Fn(f64, f64) -> f64>
+    weight: Box<Fn(f64, f64) -> f64 + Send + Sync>
 }
 
 impl Filter {

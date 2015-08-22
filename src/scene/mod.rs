@@ -5,7 +5,7 @@ mod light;
 pub mod material;
 mod primitive;
 
-use std::rc::Rc;
+use std::sync::Arc;
 use std::error::Error;
 
 use geom::{Point, UnitVector};
@@ -34,7 +34,7 @@ pub struct Scene {
 impl Scene {
     pub fn new(config: SceneConfig) -> Result<Scene, Box<Error>> {
         let materials = config.materials.into_iter()
-            .map(|(k, v)| (k, Rc::new(Material::from(v))))
+            .map(|(k, v)| (k, Arc::new(Material::from(v))))
             .collect();
 
         let primitives = try!(config.primitives.into_iter()

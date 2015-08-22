@@ -58,6 +58,6 @@ impl PartialOrd for Intersection {
 impl Eq for Intersection {}
 
 
-pub trait Shape {
+pub trait Shape: Send + Sync {
     fn intersect(&self, ray: &Ray) -> Option<Intersection>;
 }

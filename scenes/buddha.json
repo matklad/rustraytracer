@@ -65,10 +65,11 @@
 
   "rendering": {
     "resolution": [800, 600],
+    "n_threads": 6,
     "n_reflections": 1,
     "sampler": {
       "variant": "Stratified",
-      "fields": [1, false]
+      "fields": [2, true]
     },
     "filter": {
       "extent": [0.5, 0.5],
