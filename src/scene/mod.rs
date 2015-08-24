@@ -5,8 +5,8 @@ mod light;
 pub mod material;
 mod primitive;
 
-use std::sync::Arc;
 use std::error::Error;
+use std::collections::HashMap;
 
 use geom::{Point, UnitVector};
 use geom::shape::Shape;
@@ -28,17 +28,22 @@ pub struct Scene {
     pub background_color: Color,
     pub lights: Vec<LightSource>,
     primitives: Vec<Primitive>,
+    materials: Vec<Material>,
 }
 
 
 impl Scene {
     pub fn new(config: SceneConfig) -> Result<Scene, Box<Error>> {
-        let materials = config.materials.into_iter()
-            .map(|(k, v)| (k, Arc::new(Material::from(v))))
-            .collect();
+        let mut materials = Vec::new();
+        let mut material_index_map = HashMap::new();
+        for (k, v) in config.materials {
+            material_index_map.insert(k, materials.len());
+            materials.push(Material::from(v));
+
+        }
 
         let primitives = try!(config.primitives.into_iter()
-                              .map(|p| read_primitive(p, &materials))
+                              .map(|p| read_primitive(p, &material_index_map))
                               .collect::<Result<Vec<Primitive>, _>>());
         let lights = config.lights.into_iter()
             .map(LightSource::from)
@@ -48,8 +53,9 @@ impl Scene {
             camera: Camera::from(config.camera),
             ambient_light: config.ambient_light,
             background_color: config.background_color,
-            primitives: primitives,
             lights: lights,
+            primitives: primitives,
+            materials: materials,
         })
     }
 
@@ -75,7 +81,11 @@ impl Scene {
     pub fn find_obstacle(&self, ray: &Ray) -> Option<Intersection> {
         self.primitives
             .iter()
-            .filter_map(|obj| obj.intersect(&ray))
+            .filter_map(|obj| {
+                let material = &self.materials[obj.material_idx];
+                obj.shape.intersect(&ray)
+                    .map(|g| Intersection {geom: g, material: material})
+            })
             .min()
     }
 }

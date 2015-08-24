@@ -1,13 +1,11 @@
 use std::collections::HashMap;
 use std::error::Error;
 use std::{fmt, fs, io};
-use std::sync::Arc;
 
 use color::Color;
 use geom::{Point, UnitVector};
 use geom::shape::{Mesh, Plane, Sphere};
 use super::primitive::Primitive;
-use super::material::Material;
 
 
 #[derive(Debug, RustcDecodable)]
@@ -87,7 +85,7 @@ impl fmt::Display for ParseSceneError {
     }
 }
 
-pub fn read_primitive<'a>(conf: PrimitiveConfig, materials: &HashMap<String, Arc<Material>>)
+pub fn read_primitive<'a>(conf: PrimitiveConfig, materials: &HashMap<String, usize>)
                   -> Result<Primitive, Box<Error>> {
     let material = try!(materials.get(&conf.material).ok_or(ParseSceneError {
         description: format!("No such material: {}", conf.material)

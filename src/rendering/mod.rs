@@ -93,7 +93,7 @@ impl Tracer {
         match self.scene.find_obstacle(ray) {
             Some(ref intersection) => {
                 let arrived_light = self.colorize(ray.direction, intersection);
-                let reflectance = intersection.primitive.material.reflectance;
+                let reflectance = intersection.material.reflectance;
                 let has_reflection = level < self.n_reflections
                     && reflectance > 0.0;
                 let reflected_light = if has_reflection  {
@@ -144,7 +144,7 @@ trait IntersectionExt {
 
 impl<'a> IntersectionExt for Intersection<'a> {
     fn colorize_ambient(&self, illumination: Color) -> Color {
-        self.primitive.material.color.at(&self.geom) * illumination
+        self.material.color.at(&self.geom) * illumination
     }
 
     fn colorize_diffuse(&self,
@@ -152,8 +152,8 @@ impl<'a> IntersectionExt for Intersection<'a> {
                         light_direction: UnitVector)
                         -> Color {
 
-        let k = (-light_direction.dot(self.geom.normal)).max(0.0) * self.primitive.material.diffuse;
-        self.primitive.material.color.at(&self.geom) * illumination * k
+        let k = (-light_direction.dot(self.geom.normal)).max(0.0) * self.material.diffuse;
+        self.material.color.at(&self.geom) * illumination * k
     }
 
     fn colorize_specular(&self,
@@ -163,7 +163,7 @@ impl<'a> IntersectionExt for Intersection<'a> {
                          -> Color {
 
         let r = light_direction.reflect(self.geom.normal);
-        let k = (-r.dot(view_direction)).max(0.0).powf(self.primitive.material.specular);
+        let k = (-r.dot(view_direction)).max(0.0).powf(self.material.specular);
         illumination * k
     }
 }
