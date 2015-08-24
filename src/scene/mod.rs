@@ -26,8 +26,8 @@ pub struct Scene {
     pub camera: Camera,
     pub ambient_light: Color,
     pub background_color: Color,
-    pub primitives: Vec<Primitive>,
     pub lights: Vec<LightSource>,
+    primitives: Vec<Primitive>,
 }
 
 
