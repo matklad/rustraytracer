@@ -13,10 +13,11 @@ use geom::shape::Shape;
 use geom::ray::Ray;
 use color::Color;
 use self::camera::Camera;
+use self::primitive::Primitive;
 use self::config::read_primitive;
 
 pub use self::light::LightSource;
-pub use self::primitive::{Primitive, Intersection};
+pub use self::primitive::Intersection;
 pub use self::camera::ScreenPoint;
 pub use self::material::{Texture, Material};
 pub use self::config::SceneConfig;

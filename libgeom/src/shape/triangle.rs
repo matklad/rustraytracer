@@ -1,5 +1,9 @@
-use geom::{Point, UnitVector, Vector, Cross, Dot};
-use geom::ray::Ray;
+use Point;
+use UnitVector;
+use Vector;
+use Cross;
+use Dot;
+use ray::Ray;
 use super::{Shape, Intersection};
 use super::bound_box::{Bound, BoundBox};
 

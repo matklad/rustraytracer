@@ -1,8 +1,10 @@
 use std::f64;
 use std::iter::FromIterator;
 
-use geom::ray::Ray;
-use geom::{Point, Axis, Vector};
+use ray::Ray;
+use Point;
+use Axis;
+use Vector;
 
 
 #[derive(Debug, Clone, Copy)]

@@ -1,9 +1,11 @@
 use std::{io, fmt, num};
 use std::error::Error;
 
-use geom::{Point, UnitVector, Vector};
-use geom::shape::Triangle;
-use geom::shape::mesh::Mesh;
+use Point;
+use UnitVector;
+use Vector;
+use shape::Triangle;
+use shape::mesh::Mesh;
 
 
 #[derive(Debug)]

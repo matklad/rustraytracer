@@ -1,5 +1,7 @@
-use geom::{Point, UnitVector, Dot};
-use geom::ray::Ray;
+use Point;
+use UnitVector;
+use Dot;
+use ray::Ray;
 use super::{Intersection, Shape};
 
 

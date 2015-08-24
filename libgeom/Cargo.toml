@@ -1,18 +1,9 @@
 [package]
-name = "rustraytracer"
+name = "geom"
 version = "0.1.0"
 authors = ["Aleksey Kladov <aleksey.kladov@gmail.com>"]
-license = "MIT"
 
 
 [dependencies]
 rand = "0.3.0"
-regex = "0.1.8"
 rustc-serialize = "0.3"
-time = "0.1"
-
-[dependencies.geom]
-path = "libgeom"
-
-[profile.release]
-debug = true

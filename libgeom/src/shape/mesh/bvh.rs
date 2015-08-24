@@ -2,10 +2,10 @@ use std::f64;
 use std::iter::{IntoIterator};
 use std::cmp::min;
 
-use geom::{Axis};
-use geom::ray::Ray;
-use geom::shape::{Intersection, Shape};
-use geom::shape::bound_box::{BoundBox, Bound};
+use Axis;
+use ray::Ray;
+use shape::{Intersection, Shape};
+use shape::bound_box::{BoundBox, Bound};
 
 pub trait BoundedShape: Shape + Bound + Clone {}
 impl<T: Shape + Bound + Clone> BoundedShape for T {}

@@ -1,3 +1,6 @@
+extern crate rand;
+extern crate rustc_serialize;
+
 mod vector;
 mod point;
 pub mod ray;

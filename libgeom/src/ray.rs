@@ -1,4 +1,5 @@
-use geom::{Point, UnitVector};
+use Point;
+use UnitVector;
 
 #[derive(Clone)]
 pub struct Ray {

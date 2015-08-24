@@ -1,6 +1,7 @@
 use std::cmp::{Ordering};
-use geom::{Point, UnitVector};
-use geom::ray::{Ray};
+use Point;
+use UnitVector;
+use ray::Ray;
 
 mod mesh;
 mod plane;

@@ -3,7 +3,9 @@ use std::fmt;
 use rand;
 use rustc_serialize::{Decodable, Decoder};
 
-use geom::{Vector, UnitVector, Axis};
+use Vector;
+use UnitVector;
+use Axis;
 
 
 #[derive(Debug, Clone, Copy)]

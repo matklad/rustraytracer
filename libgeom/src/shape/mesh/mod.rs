@@ -5,7 +5,7 @@ mod obj_parser;
 use std::error::Error;
 use std::io;
 
-use geom::ray::Ray;
+use ray::Ray;
 use super::{Triangle, Shape, Intersection};
 use self::bvh::Bvh;
 use self::obj_parser::ObjParser;
