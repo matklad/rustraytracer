@@ -103,29 +103,29 @@ mod test {
     use shape::{Shape, Intersection};
     use shape::bound_box::Bound;
 
-    use shortcuts::p;
     use Vector;
+    use Point;
     use ray::Ray;
     use utils::props::check_prop2;
 
     #[test]
     fn test_triangle_intersection() {
         let t1 = Triangle::new(
-            p(0.0, -1.0, -1.0),
-            p(0.0, -1.0, 1.0),
-            p(0.0, 1.0, 1.0));
+            Point::new(0.0, -1.0, -1.0),
+            Point::new(0.0, -1.0, 1.0),
+            Point::new(0.0, 1.0, 1.0));
         let t2 = Triangle::new(
-            p(0.0, 1.0, 1.0),
-            p(0.0, 1.0, -1.0),
-            p(0.0, -1.0, -1.0));
-        let origin = p(-1.0, 0.0, 0.0);
+            Point::new(0.0, 1.0, 1.0),
+            Point::new(0.0, 1.0, -1.0),
+            Point::new(0.0, -1.0, -1.0));
+        let origin = Point::new(-1.0, 0.0, 0.0);
         let mut t1_hits = 0;
         let mut t2_hits = 0;
 
         check_prop2(|y: f64, z: f64| {
             let y = y % 1.0;
             let z = z % 1.0;
-            let ray = Ray::from_to(origin, p(0.0, y, z));
+            let ray = Ray::from_to(origin, Point::new(0.0, y, z));
             let i1 = t1.intersect(&ray);
             let i2 = t2.intersect(&ray);
             assert!((i1.is_some() || i2.is_some()) &&
@@ -154,16 +154,16 @@ mod test {
             let v2 = v2 / v2.length();
             let v3 = v3 / v3.length();
             let target = Triangle::new(
-                p(v1.x, v1.y, v1.z),
-                p(v2.x, v2.y, v2.z),
-                p(v3.x, v3.y, v3.z));
+                Point::new(v1.x, v1.y, v1.z),
+                Point::new(v2.x, v2.y, v2.z),
+                Point::new(v3.x, v3.y, v3.z));
 
             let y = y % 1.0;
             let z = z % 1.0;
             let o = o % 3.0;
-            let origin = p(o, 0.0, 0.0);
+            let origin = Point::new(o, 0.0, 0.0);
 
-            let ray = Ray::from_to(origin, p(0.0, y, z));
+            let ray = Ray::from_to(origin, Point::new(0.0, y, z));
             if let Some(Intersection {t, ..}) = target.intersect(&ray) {
                 assert!(target.bound().is_intersected(&ray, t + 0.001));
                 hits += 1;

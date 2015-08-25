@@ -61,18 +61,18 @@ impl Shape for Sphere {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use {Point, Cross};
+    use Point;
+    use Cross;
     use shape::{Shape, Intersection};
     use ray::{Ray};
 
-    use shortcuts::{p};
     use utils::props::check_prop2;
 
     #[test]
     fn hit_on_sphere() {
         let mut hits = 0;
         let mut misses = 0;
-        let center = p(0.0, 0.0, 0.0);
+        let center = Point::new(0.0, 0.0, 0.0);
         let radius = 0.5;
         let sphere = Sphere::new(center, radius);
 
@@ -80,10 +80,10 @@ mod tests {
             ((center - p).length() - radius) < 1e-6
         };
 
-        let from = p(-10.0, 0.0, 0.0);
+        let from = Point::new(-10.0, 0.0, 0.0);
 
         check_prop2(|y: f64, z: f64| {
-            let to = p(0.0, y % 1.0, z % 1.0);
+            let to = Point::new(0.0, y % 1.0, z % 1.0);
             let ray = Ray::from_to(from, to);
 
             let is_on_ray = |p: Point| {

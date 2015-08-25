@@ -43,18 +43,19 @@ mod test {
     use super::*;
     use utils::props::check_prop;
     use shape::Shape;
-    use shortcuts::{p, v};
     use ray::Ray;
+    use Point;
+    use Vector;
 
     #[test]
     fn test_plane_intersection() {
         let plane = Plane::new(
-            p(0.0, 0.0, 0.0),
-            v(1.0, 0.0, 0.0).direction());
+            Point::new(0.0, 0.0, 0.0),
+            Vector::new(1.0, 0.0, 0.0).direction());
 
-        let ray_origin = p(10.0, 3.0, 4.0);
+        let ray_origin = Point::new(10.0, 3.0, 4.0);
         check_prop(|(x, y, z): (f64, f64, f64)| {
-            let ray = Ray::from_to(ray_origin, p(x, y, z));
+            let ray = Ray::from_to(ray_origin, Point::new(x, y, z));
             let intersection = plane.intersect(&ray);
             match intersection {
                 None => assert!(x < 0.0),
