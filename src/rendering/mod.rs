@@ -8,8 +8,7 @@ use std::sync::Arc;
 
 use color::Color;
 use utils::datastructures::Matrix;
-use geom::{UnitVector, Dot};
-use geom::ray::Ray;
+use geom::{UnitVector, Dot, Ray};
 use scene::{Intersection, Scene, Texture};
 use utils::time_it;
 use self::filters::Filter;

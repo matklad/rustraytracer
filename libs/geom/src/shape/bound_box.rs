@@ -1,7 +1,7 @@
 use std::f64;
 use std::iter::FromIterator;
 
-use ray::Ray;
+use Ray;
 use Point;
 use Axis;
 use Vector;

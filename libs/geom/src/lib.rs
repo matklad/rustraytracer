@@ -4,11 +4,12 @@ extern crate utils;
 
 mod vector;
 mod point;
-pub mod ray;
+mod ray;
 pub mod shape;
 
 pub use self::vector::{Vector, UnitVector};
 pub use self::point::{Point};
+pub use self::ray::Ray;
 
 pub type Axis = u8;
 

@@ -1,7 +1,7 @@
 use std::cmp::{Ordering};
 use Point;
 use UnitVector;
-use ray::Ray;
+use Ray;
 
 mod mesh;
 mod plane;

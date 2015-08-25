@@ -1,5 +1,4 @@
-use geom::{Point, Vector, Cross};
-use geom::ray::{Ray};
+use geom::{Point, Vector, Ray, Cross};
 use super::config::CameraConfig;
 
 

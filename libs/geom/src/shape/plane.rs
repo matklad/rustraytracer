@@ -1,7 +1,7 @@
 use Point;
 use UnitVector;
 use Dot;
-use ray::Ray;
+use Ray;
 use super::{Intersection, Shape};
 
 
@@ -43,7 +43,7 @@ mod test {
     use super::*;
     use utils::props::check_prop;
     use shape::Shape;
-    use ray::Ray;
+    use Ray;
     use Point;
     use Vector;
 

@@ -8,9 +8,8 @@ mod primitive;
 use std::error::Error;
 use std::collections::HashMap;
 
-use geom::{Point, UnitVector};
+use geom::{Point, UnitVector, Ray};
 use geom::shape::Shape;
-use geom::ray::Ray;
 use color::Color;
 use self::camera::Camera;
 use self::primitive::Primitive;

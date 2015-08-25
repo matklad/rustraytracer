@@ -3,7 +3,7 @@ use UnitVector;
 use Vector;
 use Cross;
 use Dot;
-use ray::Ray;
+use Ray;
 use super::{Shape, Intersection};
 use super::bound_box::{Bound, BoundBox};
 
@@ -105,7 +105,7 @@ mod test {
 
     use Vector;
     use Point;
-    use ray::Ray;
+    use Ray;
     use utils::props::check_prop2;
 
     #[test]

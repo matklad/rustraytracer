@@ -1,7 +1,7 @@
 use Point;
 use UnitVector;
 use Dot;
-use ray::Ray;
+use Ray;
 use super::{Shape, Intersection};
 
 pub struct Sphere {
