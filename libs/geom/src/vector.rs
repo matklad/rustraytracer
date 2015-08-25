@@ -252,8 +252,8 @@ impl Cross<Vector> for UnitVector {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use geom::Cross;
-    use props::{check_prop, check_prop2};
+    use Cross;
+    use utils::props::{check_prop, check_prop2};
 
     #[test]
     fn addition_commutative() {

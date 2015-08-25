@@ -25,8 +25,8 @@ impl Ray {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use props::{check_prop2};
-    use geom::point::{Point};
+    use utils::props::check_prop2;
+    use point::Point;
 
     #[test]
     fn alog_inverse_from_to() {

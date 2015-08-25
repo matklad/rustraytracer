@@ -41,10 +41,10 @@ impl Shape for Plane {
 #[cfg(test)]
 mod test {
     use super::*;
-    use props::check_prop;
-    use geom::shape::Shape;
-    use geom::shortcuts::{p, v};
-    use geom::ray::Ray;
+    use utils::props::check_prop;
+    use shape::Shape;
+    use shortcuts::{p, v};
+    use ray::Ray;
 
     #[test]
     fn test_plane_intersection() {

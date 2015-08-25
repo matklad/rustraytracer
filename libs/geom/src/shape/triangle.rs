@@ -100,13 +100,13 @@ impl Bound for Triangle {
 #[cfg(test)]
 mod test {
     use super::*;
-    use geom::shape::{Shape, Intersection};
-    use geom::shape::bound_box::Bound;
+    use shape::{Shape, Intersection};
+    use shape::bound_box::Bound;
 
-    use geom::shortcuts::p;
-    use geom::Vector;
-    use geom::ray::Ray;
-    use props::check_prop2;
+    use shortcuts::p;
+    use Vector;
+    use ray::Ray;
+    use utils::props::check_prop2;
 
     #[test]
     fn test_triangle_intersection() {

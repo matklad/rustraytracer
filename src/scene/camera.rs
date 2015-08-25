@@ -68,8 +68,10 @@ impl From<CameraConfig> for Camera {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use scene::config::CameraConfig;
     use geom::shortcuts::{v, p};
-    use props::{check_prop2};
+    use utils::props::{check_prop2};
+
 
     #[test]
     fn test_ray_casting() {
@@ -80,7 +82,7 @@ mod tests {
             up: v(0.0, 0.0, 1.0).direction(),
             size: [6.4, 4.8],
         };
-        let cam = Camera::new(config);
+        let cam = Camera::from(config);
         check_prop2(|x: f64, y: f64| {
             let x = x % 1.0;
             let y = y % 1.0;

@@ -61,12 +61,12 @@ impl Shape for Sphere {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use geom::{Point, Cross};
-    use geom::shape::{Shape, Intersection};
-    use geom::ray::{Ray};
+    use {Point, Cross};
+    use shape::{Shape, Intersection};
+    use ray::{Ray};
 
-    use geom::shortcuts::{p};
-    use props::check_prop2;
+    use shortcuts::{p};
+    use utils::props::check_prop2;
 
     #[test]
     fn hit_on_sphere() {

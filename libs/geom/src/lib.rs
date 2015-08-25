@@ -1,5 +1,6 @@
 extern crate rand;
 extern crate rustc_serialize;
+extern crate utils;
 
 mod vector;
 mod point;

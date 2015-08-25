@@ -7,3 +7,6 @@ authors = ["Aleksey Kladov <aleksey.kladov@gmail.com>"]
 [dependencies]
 rand = "0.3.0"
 rustc-serialize = "0.3"
+
+[dependencies.utils]
+path = "../utils"
