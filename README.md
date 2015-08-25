@@ -12,8 +12,8 @@ http://www.rust-lang.org/install.html
 Project is at the early stage (as always), but the current structure is as
 follows.
 
-  * `libgeom/src/` -- basic geometric building blocks. A nice place to start
-  reading. Also includes bounding volume hierarchy tree in `libgeom/src/shape/mesh`
+  * `libs/geom` -- basic geometric building blocks. A nice place to start
+  reading. Also includes bounding volume hierarchy tree in `libs/geom/src/shape/mesh`
   * `src` -- source code and some embedded test (`#[test]`)
   * `src/scene` -- a physical description of the scene, which integrates geometric
   shapes with materials, lights and colors.

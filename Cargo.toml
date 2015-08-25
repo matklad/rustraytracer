@@ -12,7 +12,7 @@ rustc-serialize = "0.3"
 time = "0.1"
 
 [dependencies.geom]
-path = "libgeom"
+path = "libs/geom"
 
 [profile.release]
 debug = true
