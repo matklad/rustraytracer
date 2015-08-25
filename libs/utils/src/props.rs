@@ -1,8 +1,6 @@
 use rand;
 
-
 const N_CHECKS: i32 = 1000;
-
 
 pub fn check_prop2<A, B, F>(mut prop: F)
     where A: rand::Rand, B: rand::Rand,

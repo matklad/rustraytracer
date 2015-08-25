@@ -14,5 +14,8 @@ time = "0.1"
 [dependencies.geom]
 path = "libs/geom"
 
+[dependencies.utils]
+path = "libs/geom"
+
 [profile.release]
 debug = true

@@ -7,7 +7,7 @@ use std::{fmt, thread};
 use std::sync::Arc;
 
 use color::Color;
-use datastructures::Matrix;
+use utils::datastructures::Matrix;
 use geom::{UnitVector, Dot};
 use geom::ray::Ray;
 use scene::{Intersection, Scene, Texture};

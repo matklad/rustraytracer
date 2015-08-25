@@ -2,16 +2,17 @@ extern crate rustraytracer;
 extern crate rustc_serialize;
 extern crate regex;
 extern crate time;
+extern crate utils;
 
 use std::fs;
-use regex::Regex;
 use std::io::{self, Read};
-
+use regex::Regex;
 use rustc_serialize::json;
+
+use utils::time_it;
 use rustraytracer::display::{PpmWriter, ImageDisplay};
 use rustraytracer::scene::{Scene, SceneConfig};
 use rustraytracer::rendering::{Tracer, TracerConfig};
-use rustraytracer::utils::time_it;
 
 #[derive(Debug, RustcDecodable)]
 struct Config {

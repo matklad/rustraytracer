@@ -1,5 +1,5 @@
 use color::Color;
-use datastructures::Matrix;
+use utils::datastructures::Matrix;
 use scene::ScreenPoint;
 use super::{Image, Pixel};
 use super::samplers::Sample;
