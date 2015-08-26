@@ -45,6 +45,8 @@ pub struct Tracer {
 }
 
 
+const THREAD_NUMBER: u16 = 8;
+const BLOCKS_PER_THREAD: u16 = 20;
 
 impl Tracer {
     pub fn new(scene: Scene, config: TracerConfig) -> Tracer {
@@ -53,12 +55,12 @@ impl Tracer {
             sampler: Box::new(StratifiedSampler::new(config.resolution, config.sampler)),
             filter: Box::new(Filter::new(config.resolution, config.filter)),
             n_reflections: config.n_reflections,
-            n_threads: config.n_threads.unwrap_or(8),
+            n_threads: config.n_threads.unwrap_or(THREAD_NUMBER),
         }
     }
 
     pub fn render(&self) -> (Image, TracingStats) {
-        let samplers = self.sampler.split(self.n_threads * 10);
+        let samplers = self.sampler.split(self.n_threads * BLOCKS_PER_THREAD);
         let (results, rendering_time) = time_it(|| {
             let results = Mutex::new(Vec::new());
             let mut pool = simple_parallel::Pool::new(self.n_threads as usize);
