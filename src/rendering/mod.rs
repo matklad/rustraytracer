@@ -3,8 +3,9 @@ mod utils;
 mod filters;
 mod config;
 
-use std::{fmt, thread};
-use std::sync::Arc;
+use std::{fmt, mem};
+use std::sync::Mutex;
+use simple_parallel;
 
 use color::Color;
 use utils::datastructures::Matrix;
@@ -56,26 +57,20 @@ impl Tracer {
         }
     }
 
-    pub fn render(self) -> (Image, TracingStats) {
-        let samplers = self.sampler.split(self.n_threads);
-        let tracer = Arc::new(self);
+    pub fn render(&self) -> (Image, TracingStats) {
+        let samplers = self.sampler.split(self.n_threads * 10);
         let (results, rendering_time) = time_it(|| {
-            let threads: Vec<_> = samplers.into_iter()
-                .map(|sampler| {
-                    let tracer = tracer.clone();
-                    thread::spawn(move || {
-                        tracer.render_samples(&sampler.sample())
-                    })
-                }).collect();
-
-            let mut results = Vec::new();
-            for t in threads {
-                results.extend(t.join().unwrap().into_iter());
-            }
-            results
+            let results = Mutex::new(Vec::new());
+            let mut pool = simple_parallel::Pool::new(self.n_threads as usize);
+            pool.for_(samplers, |sampler| {
+                let r = self.render_samples(&sampler.sample());
+                results.lock().unwrap().extend(r.into_iter());
+            });
+            let mut guard = results.lock().unwrap();
+            mem::replace(&mut *guard, Vec::new())
         });
 
-        let (image, filtering_time) = time_it(|| tracer.filter.apply(&results));
+        let (image, filtering_time) = time_it(|| self.filter.apply(&results));
         (image, TracingStats {rendering_time: rendering_time,
                               filtering_time: filtering_time})
     }

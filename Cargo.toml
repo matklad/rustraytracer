@@ -10,6 +10,7 @@ rand = "0.3.0"
 regex = "0.1.8"
 rustc-serialize = "0.3"
 time = "0.1"
+simple_parallel = "0.2"
 
 [dependencies.geom]
 path = "libs/geom"

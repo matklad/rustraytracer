@@ -2,6 +2,7 @@ extern crate rustc_serialize;
 extern crate rand;
 extern crate geom;
 extern crate utils;
+extern crate simple_parallel;
 
 pub mod color;
 pub mod display;
