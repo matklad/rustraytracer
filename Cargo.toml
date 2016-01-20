@@ -16,7 +16,7 @@ simple_parallel = "0.3"
 path = "libs/geom"
 
 [dependencies.utils]
-path = "libs/geom"
+path = "libs/utils"
 
 [profile.release]
 debug = true
