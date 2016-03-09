@@ -1,4 +1,3 @@
-extern crate rand;
 use std::ops::{Add, Sub};
 use std::fmt;
 use geom::{Vector, UnitVector};
@@ -22,12 +21,6 @@ impl Point {
 impl fmt::Display for Point {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.radius_vector.fmt(f)
-    }
-}
-
-impl rand::Rand for Point {
-    fn rand<R: rand::Rng>(rng: &mut R) -> Point {
-        Point { radius_vector: Vector::rand(rng) }
     }
 }
 

@@ -1,5 +1,3 @@
-extern crate rand;
-
 use std::ops::{Add, Sub, Div, Mul, Neg};
 use std::fmt;
 
@@ -42,12 +40,6 @@ impl fmt::Display for Vector {
     }
 }
 
-
-impl rand::Rand for Vector {
-    fn rand<R: rand::Rng>(rng: &mut R) -> Vector {
-        Vector::new(f64::rand(rng), f64::rand(rng), f64::rand(rng))
-    }
-}
 
 impl Neg for Vector {
     type Output = Vector;
