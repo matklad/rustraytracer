@@ -6,11 +6,11 @@ license = "MIT"
 
 
 [dependencies]
-rand = "0.3"
-regex = "0.1"
-rustc-serialize = "0.3"
-time = "0.1"
-simple_parallel = "0.3"
+rand = "*"
+regex = "*"
+rustc-serialize = "*"
+time = "*"
+simple_parallel = "*"
 
 [dependencies.geom]
 path = "libs/geom"
