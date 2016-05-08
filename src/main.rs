@@ -47,5 +47,5 @@ fn main() {
 
     let end = time::precise_time_s();
     println!("\nPreprocess:  {:.2}s\n{}\n\nTotal: {:.2} seconds",
-             prep_time, stats, end - start);
+    prep_time, stats, end - start);
 }

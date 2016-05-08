@@ -37,7 +37,7 @@ impl Filter {
     pub fn apply(&self, samples: &Vec<(Sample, Color)>) -> Image {
         let mut image = Image::fill(self.resolution, Color::new(0.0, 0.0, 0.0));
         let mut weights = Matrix::<f64>::fill(self.resolution, 0.0);
-        for &(sample, radiance) in samples.iter() {
+        for & (sample, radiance) in samples.iter() {
             for pixel in self.neighbours(sample.pixel) {
                 let diff = ScreenPoint::from(pixel) - from_uniform(self.resolution, sample.pixel);
                 let weight = (self.weight)(diff.x.abs(), diff.y.abs());

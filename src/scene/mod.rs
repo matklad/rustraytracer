@@ -39,15 +39,14 @@ impl Scene {
         for (k, v) in config.materials {
             material_index_map.insert(k, materials.len());
             materials.push(Material::from(v));
-
         }
 
         let primitives = try!(config.primitives.into_iter()
-                              .map(|p| read_primitive(p, &material_index_map))
-                              .collect::<Result<Vec<Primitive>, _>>());
+        .map(|p| read_primitive(p, &material_index_map))
+        .collect::<Result<Vec<Primitive>, _>>());
         let lights = config.lights.into_iter()
-            .map(LightSource::from)
-            .collect();
+        .map(LightSource::from)
+        .collect();
 
         Ok(Scene {
             camera: Camera::from(config.camera),
@@ -80,12 +79,12 @@ impl Scene {
 
     pub fn find_obstacle(&self, ray: &Ray) -> Option<Intersection> {
         self.primitives
-            .iter()
-            .filter_map(|obj| {
-                let material = &self.materials[obj.material_idx];
-                obj.shape.intersect(&ray)
-                    .map(|g| Intersection {geom: g, material: material})
-            })
-            .min()
+        .iter()
+        .filter_map(|obj| {
+            let material = &self.materials[obj.material_idx];
+            obj.shape.intersect(&ray)
+            .map(|g| Intersection { geom: g, material: material })
+        })
+        .min()
     }
 }

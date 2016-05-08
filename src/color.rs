@@ -59,25 +59,25 @@ impl FromStr for Color {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Color, String> {
-        if !(s.len() ==  4 || s.len() == 7) {
+        if !(s.len() == 4 || s.len() == 7) {
             return Err("wrong length".to_string());
         }
         if !(s.starts_with("#")) {
             return Err("should start with #".to_string());
         }
-        let p = if s.len() == 4 {1} else {2};
+        let p = if s.len() == 4 { 1 } else { 2 };
         let digits: Result<Vec<_>, _> = (0..3)
-            .map(|i| (1 + i*p, 1 + (i + 1)*p))
-            .map(|(l, r)| &s[l..r])
-            .map(|s| u8::from_str_radix(s, 16))
-            .collect();
+        .map(|i| (1 + i * p, 1 + (i + 1) * p))
+        .map(|(l, r)| &s[l..r])
+        .map(|s| u8::from_str_radix(s, 16))
+        .collect();
 
         match digits {
             Err(_) => Err("bad digits".to_string()),
             Ok(v) => {
-                let parts = v.iter().map(|&i| if p == 1 {i * 17} else {i})
-                    .map(|i| i as f64 / 255.0)
-                    .collect::<Vec<_>>();
+                let parts = v.iter().map(|& i| if p == 1 { i * 17 } else { i })
+                .map(|i| i as f64 / 255.0)
+                .collect::<Vec<_>>();
                 Ok(Color::new(parts[0], parts[1], parts[2]))
             }
         }
@@ -90,7 +90,7 @@ impl From<&'static str> for Color {
     }
 }
 
-#[cfg(test)]
+    #[cfg(test)]
 mod test {
     use super::*;
 
@@ -104,13 +104,13 @@ mod test {
 }
 
 
-pub mod palette {
+    pub mod palette {
     use super::Color;
     const EPS: f64 = 0.05;
 
-    pub const RED: Color = Color {r: 1.0, g: EPS, b: EPS};
-    pub const GREEN: Color = Color {r: EPS, g: 1.0, b: EPS};
-    pub const BLUE: Color = Color {r: EPS, g: EPS, b: 1.0};
+    pub const RED: Color = Color { r: 1.0, g: EPS, b: EPS };
+    pub const GREEN: Color = Color { r: EPS, g: 1.0, b: EPS };
+    pub const BLUE: Color = Color { r: EPS, g: EPS, b: 1.0 };
 }
 
 
@@ -136,7 +136,6 @@ impl Rgb8Bit {
             b: to_u8(color.b),
         }
     }
-
 }
 
 impl Decodable for Color {

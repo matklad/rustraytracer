@@ -13,7 +13,7 @@ pub fn to_uniform(resolution: Pixel, point: ScreenPoint) -> ScreenPoint {
 pub fn from_uniform(resolution: Pixel, point: ScreenPoint) -> ScreenPoint {
     let resolution = ScreenPoint::from(resolution);
     let result = ((point + ScreenPoint::new(1.0, 1.0)) / 2.0) * resolution -
-        ScreenPoint::new(0.5, 0.5);
+    ScreenPoint::new(0.5, 0.5);
     result
 }
 

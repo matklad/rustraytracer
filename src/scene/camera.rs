@@ -39,8 +39,8 @@ pub struct Camera {
 impl Camera {
     pub fn cast_ray(&self, screen_point: ScreenPoint) -> Ray {
         let target = self.screen.center
-            + self.screen.basis[0] * screen_point.x
-            + self.screen.basis[1] * screen_point.y;
+        + self.screen.basis[0] * screen_point.x
+        + self.screen.basis[1] * screen_point.y;
 
         return Ray::from_to(self.position, target);
     }
@@ -64,7 +64,7 @@ impl From<CameraConfig> for Camera {
 }
 
 
-#[cfg(test)]
+    #[cfg(test)]
 mod tests {
     use super::*;
     use scene::config::CameraConfig;

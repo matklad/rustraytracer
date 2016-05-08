@@ -23,7 +23,7 @@ impl<'a> ImageDisplay<'a> for PpmWriter<'a> {
         let magic_number = "P3";
         let max_color = 255;
         try!(write!(&mut self.destination, "{}\n{} {}\n{}\n",
-                    magic_number, image.width(), image.height(), max_color));
+        magic_number, image.width(), image.height(), max_color));
 
         for (xy, color) in image.iter() {
             if xy[0] == 0 {
@@ -31,7 +31,7 @@ impl<'a> ImageDisplay<'a> for PpmWriter<'a> {
             }
             let Rgb8Bit {r, g, b} = Rgb8Bit::truncate(&color);
             try!(write!(&mut self.destination, "{:3} {:3} {:3}  ",
-                            r, g, b));
+            r, g, b));
         }
         Ok(())
     }

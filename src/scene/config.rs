@@ -86,7 +86,7 @@ impl fmt::Display for ParseSceneError {
 }
 
 pub fn read_primitive<'a>(conf: PrimitiveConfig, materials: &HashMap<String, usize>)
-                  -> Result<Primitive, Box<Error>> {
+-> Result<Primitive, Box<Error>> {
     let material = try!(materials.get(&conf.material).ok_or(ParseSceneError {
         description: format!("No such material: {}", conf.material)
     }));
@@ -99,9 +99,9 @@ pub fn read_primitive<'a>(conf: PrimitiveConfig, materials: &HashMap<String, usi
             Ok(Primitive::new(mesh, material))
         },
         PrimitiveKind::Plane {position, normal} =>
-            Ok(Primitive::new(Plane::new(position, normal), material)),
+        Ok(Primitive::new(Plane::new(position, normal), material)),
         PrimitiveKind::Sphere {position, radius} =>
-            Ok(Primitive::new(Sphere::new(position, radius), material))
+        Ok(Primitive::new(Sphere::new(position, radius), material))
     }
 }
 
