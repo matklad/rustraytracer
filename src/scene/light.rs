@@ -29,7 +29,7 @@ impl From<LightConfig> for LightSource {
     fn from(config: LightConfig) -> LightSource {
         let source: Box<LightSourceImpl> = match config.kind {
             LightKind::PointLight => Box::new(PointLight),
-            LightKind::SpotLight {look_at, inner_angle, outer_angle} =>  {
+            LightKind::SpotLight {look_at, inner_angle, outer_angle} => {
                 assert!(inner_angle <= outer_angle);
                 let direction = (look_at - config.position).direction();
                 Box::new(SpotLight {

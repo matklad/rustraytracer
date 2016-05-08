@@ -61,7 +61,7 @@ impl Scene {
 
     pub fn is_visible(&self, what: Point, from: &Intersection) -> bool {
         let ray = Ray::from_to(from.geom.point, what);
-        let ray = Ray::from_to(ray.along(1e-6) , what);
+        let ray = Ray::from_to(ray.along(1e-6), what);
         // FIXME: what if obstacle is behind a light source?
         match self.find_obstacle(&ray) {
             None => true,

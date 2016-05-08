@@ -21,7 +21,6 @@ impl Console {
 
 impl<'a> ImageDisplay<'a> for Console {
     fn draw(&mut self, image: &Image) -> io::Result<()> {
-
         for (xy, color) in image.iter() {
             if xy[0] == 0 {
                 println!("");

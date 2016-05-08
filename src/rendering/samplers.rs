@@ -85,7 +85,8 @@ impl Sampler for StratifiedSampler {
                 result.push(Box::new(StratifiedSampler {
                     resolution: self.resolution,
                     range: [rx.clone(), ry.clone()],
-                    jitter: self.jitter}) as Box<Sampler>)
+                    jitter: self.jitter
+                }) as Box<Sampler>)
             }
         }
         result

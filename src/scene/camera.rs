@@ -10,7 +10,7 @@ pub struct ScreenPoint {
 
 impl ScreenPoint {
     pub fn new(x: f64, y: f64) -> ScreenPoint {
-        ScreenPoint {x: x, y: y}
+        ScreenPoint { x: x, y: y }
     }
     pub fn is_normalized(&self) -> bool {
         let within_bounds = |x| -1.0 <= x && x < 1.0;
@@ -54,7 +54,7 @@ impl From<CameraConfig> for Camera {
         let up = right.cross(ray_to_scren.direction).direction();
         let screen = Screen {
             center: screen_center,
-            basis: [right * config.size[0] / 2.0, -up * config.size[1] / 2.0] ,
+            basis: [right * config.size[0] / 2.0, -up * config.size[1] / 2.0],
         };
         Camera {
             position: config.position,

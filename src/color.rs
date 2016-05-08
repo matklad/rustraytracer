@@ -14,7 +14,7 @@ pub struct Color {
 impl Color {
     pub fn new(r: f64, g: f64, b: f64) -> Color {
         assert!(r >= 0.0 && g >= 0.0 && b >= 0.0, "{} {} {}", r, g, b);
-        Color {r: r, g: g, b: b}
+        Color { r: r, g: g, b: b }
     }
 
     pub fn grayscale(&self) -> f64 {

@@ -50,7 +50,6 @@ impl Filter {
             if weight != 0.0 {
                 image[i] = image[i] / weight;
             }
-
         }
 
         image
@@ -59,12 +58,12 @@ impl Filter {
     fn neighbours(&self, point: ScreenPoint) -> Vec<Pixel> {
         let discretize_range = |lower: f64, upper: f64| {
             assert!(lower <= upper);
-            lower.ceil() as i32 .. upper.floor() as i32 + 1
+            lower.ceil() as i32..upper.floor() as i32 + 1
         };
 
         let ok_pixel = |x, y| {
             0 <= x && x < self.resolution[0] as i32 &&
-                0 <= y && y < self.resolution[1] as i32
+            0 <= y && y < self.resolution[1] as i32
         };
 
         let point = from_uniform(self.resolution, point);
