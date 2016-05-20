@@ -28,7 +28,7 @@ pub struct StratifiedSampler {
 impl StratifiedSampler {
     pub fn new(resolution: Pixel, config: SamplerConfig) -> StratifiedSampler {
         match config {
-            SamplerConfig::Stratified { samples_per_pixel, jitter} => {
+            SamplerConfig::Stratified { samples_per_pixel, jitter } => {
                 let width = resolution[0] * samples_per_pixel;
                 let height = resolution[1] * samples_per_pixel;
                 StratifiedSampler {

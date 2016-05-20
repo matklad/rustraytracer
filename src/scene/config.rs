@@ -86,21 +86,21 @@ impl fmt::Display for ParseSceneError {
 }
 
 pub fn read_primitive<'a>(conf: PrimitiveConfig, materials: &HashMap<String, usize>)
-                  -> Result<Primitive, Box<Error>> {
+    -> Result<Primitive, Box<Error>> {
     let material = try!(materials.get(&conf.material).ok_or(ParseSceneError {
         description: format!("No such material: {}", conf.material)
     }));
     let material = material.clone();
 
     match conf.kind {
-        PrimitiveKind::Mesh {location} => {
+        PrimitiveKind::Mesh { location } => {
             let mut file = try!(fs::File::open(&location).map(io::BufReader::new));
             let mesh = try!(Mesh::from_obj(&mut file));
             Ok(Primitive::new(mesh, material))
         },
-        PrimitiveKind::Plane {position, normal} =>
+        PrimitiveKind::Plane { position, normal } =>
             Ok(Primitive::new(Plane::new(position, normal), material)),
-        PrimitiveKind::Sphere {position, radius} =>
+        PrimitiveKind::Sphere { position, radius } =>
             Ok(Primitive::new(Sphere::new(position, radius), material))
     }
 }

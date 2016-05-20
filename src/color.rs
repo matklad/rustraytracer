@@ -108,9 +108,9 @@ pub mod palette {
     use super::Color;
     const EPS: f64 = 0.05;
 
-    pub const RED: Color = Color {r: 1.0, g: EPS, b: EPS};
-    pub const GREEN: Color = Color {r: EPS, g: 1.0, b: EPS};
-    pub const BLUE: Color = Color {r: EPS, g: EPS, b: 1.0};
+    pub const RED: Color = Color { r: 1.0, g: EPS, b: EPS };
+    pub const GREEN: Color = Color { r: EPS, g: 1.0, b: EPS };
+    pub const BLUE: Color = Color { r: EPS, g: EPS, b: 1.0 };
 }
 
 
