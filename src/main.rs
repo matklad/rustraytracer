@@ -27,8 +27,6 @@ fn read_scene_description(path: &str) -> String {
     comment.replace_all(&result, "\n")
 }
 
-
-#[cfg_attr(test, allow(dead_code))]
 fn main() {
     println!("Start rendering...");
     let start = time::precise_time_s();

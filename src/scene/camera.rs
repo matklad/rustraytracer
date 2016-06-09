@@ -68,17 +68,17 @@ impl From<CameraConfig> for Camera {
 mod tests {
     use super::*;
     use scene::config::CameraConfig;
-    use geom::shortcuts::{v, p};
+    use geom::{Vector, Point};
     use utils::props::{check_prop2};
 
 
     #[test]
     fn test_ray_casting() {
         let config = CameraConfig {
-            position: p(-10.0, 0.0, 0.0),
-            look_at: p(0.0, 0.0, 0.0),
+            position: Point::new(-10.0, 0.0, 0.0),
+            look_at: Point::new(0.0, 0.0, 0.0),
             focus_distance: 10.0,
-            up: v(0.0, 0.0, 1.0).direction(),
+            up: Vector::new(0.0, 0.0, 1.0).direction(),
             size: [6.4, 4.8],
         };
         let cam = Camera::from(config);
