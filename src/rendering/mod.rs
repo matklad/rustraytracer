@@ -33,7 +33,6 @@ impl fmt::Display for TracingStats {
         write!(formatter, "Rendering:   {:.2}s\nFiltering:   {:.2}s",
                self.rendering_time, self.filtering_time)
     }
-
 }
 
 pub struct Tracer {
@@ -73,16 +72,18 @@ impl Tracer {
         });
 
         let (image, filtering_time) = time_it(|| self.filter.apply(&results));
-        (image, TracingStats {rendering_time: rendering_time,
-                              filtering_time: filtering_time})
+        (image, TracingStats {
+            rendering_time: rendering_time,
+            filtering_time: filtering_time
+        })
     }
 
     fn render_samples(&self, samples: &[Sample]) -> Vec<(Sample, Color)> {
         samples.into_iter()
-            .map(|&s| {
-                let ray = self.scene.camera.cast_ray(s.pixel);
-                (s, self.radiace(&ray, 0))
-            }).collect()
+               .map(|&s| {
+                   let ray = self.scene.camera.cast_ray(s.pixel);
+                   (s, self.radiace(&ray, 0))
+               }).collect()
     }
 
     pub fn radiace(&self, ray: &Ray, level: u32) -> Color {

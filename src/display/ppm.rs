@@ -29,9 +29,9 @@ impl<'a> ImageDisplay<'a> for PpmWriter<'a> {
             if xy[0] == 0 {
                 try!(write!(&mut self.destination, "\n"));
             }
-            let Rgb8Bit {r, g, b} = Rgb8Bit::truncate(&color);
+            let Rgb8Bit { r, g, b } = Rgb8Bit::truncate(&color);
             try!(write!(&mut self.destination, "{:3} {:3} {:3}  ",
-                            r, g, b));
+                        r, g, b));
         }
         Ok(())
     }
