@@ -63,7 +63,7 @@ impl Filter {
 
         let ok_pixel = |x, y| {
             0 <= x && x < self.resolution[0] as i32 &&
-            0 <= y && y < self.resolution[1] as i32
+                0 <= y && y < self.resolution[1] as i32
         };
 
         let point = from_uniform(self.resolution, point);
