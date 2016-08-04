@@ -52,7 +52,7 @@ impl BoundBox {
 
     pub fn is_intersected(&self, ray: &Ray, mut max_t: f64) -> bool {
         let mut min_t: f64 = 0.0;
-        for axis in (0..3) {
+        for axis in 0..3 {
             let inv_dir = 1.0 / ray.direction[axis];
             let t1 = (self.p_min[axis] - ray.origin[axis]) * inv_dir;
             let t2 = (self.p_max[axis] - ray.origin[axis]) * inv_dir;
