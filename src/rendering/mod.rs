@@ -3,9 +3,11 @@ mod utils;
 mod filters;
 mod config;
 
+
 use std::{fmt, mem};
 use std::sync::Mutex;
-use simple_parallel;
+use rayon;
+use rayon::prelude::*;
 
 use color::Color;
 use utils::datastructures::Matrix;
@@ -28,12 +30,14 @@ pub struct TracingStats {
     pub filtering_time: f64
 }
 
+
 impl fmt::Display for TracingStats {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(formatter, "Rendering:   {:.2}s\nFiltering:   {:.2}s",
                self.rendering_time, self.filtering_time)
     }
 }
+
 
 pub struct Tracer {
     scene: Scene,
@@ -46,6 +50,7 @@ pub struct Tracer {
 
 const THREAD_NUMBER: u16 = 8;
 const BLOCKS_PER_THREAD: u16 = 20;
+
 
 impl Tracer {
     pub fn new(scene: Scene, config: TracerConfig) -> Tracer {
@@ -60,12 +65,15 @@ impl Tracer {
 
     pub fn render(&self) -> (Image, TracingStats) {
         let samplers = self.sampler.split(self.n_threads * BLOCKS_PER_THREAD);
+        let config = rayon::Configuration::new().set_num_threads(self.n_threads as usize);
+        let pool = rayon::ThreadPool::new(config).unwrap();
         let (results, rendering_time) = time_it(|| {
             let results = Mutex::new(Vec::new());
-            let mut pool = simple_parallel::Pool::new(self.n_threads as usize);
-            pool.for_(samplers, |sampler| {
-                let r = self.render_samples(&sampler.sample());
-                results.lock().unwrap().extend(r.into_iter());
+            pool.install(|| {
+                samplers.into_par_iter().for_each(|sampler| {
+                    let r = self.render_samples(&sampler.sample());
+                    results.lock().unwrap().extend(r.into_iter());
+                })
             });
             let mut guard = results.lock().unwrap();
             mem::replace(&mut *guard, Vec::new())
@@ -80,10 +88,10 @@ impl Tracer {
 
     fn render_samples(&self, samples: &[Sample]) -> Vec<(Sample, Color)> {
         samples.into_iter()
-               .map(|&s| {
-                   let ray = self.scene.camera.cast_ray(s.pixel);
-                   (s, self.radiace(&ray, 0))
-               }).collect()
+            .map(|&s| {
+                let ray = self.scene.camera.cast_ray(s.pixel);
+                (s, self.radiace(&ray, 0))
+            }).collect()
     }
 
     pub fn radiace(&self, ray: &Ray, level: u32) -> Color {
@@ -110,7 +118,7 @@ impl Tracer {
     fn colorize(&self, view_direction: UnitVector, intersection: &Intersection) -> Color {
         let mut result = intersection.colorize_ambient(self.scene.ambient_light);
         let visible_lights = self.scene.lights.iter()
-                                              .filter(|&light| self.scene.is_visible(light.position(), &intersection));
+            .filter(|&light| self.scene.is_visible(light.position(), &intersection));
 
         for light in visible_lights {
             let light_direction = light.position().direction_to(intersection.geom.point);
@@ -122,6 +130,7 @@ impl Tracer {
         result
     }
 }
+
 
 trait IntersectionExt {
     fn colorize_ambient(&self, illumination: Color) -> Color;

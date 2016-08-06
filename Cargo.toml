@@ -10,7 +10,7 @@ rand = "*"
 regex = "*"
 rustc-serialize = "*"
 time = "*"
-simple_parallel = "*"
+rayon = "*"
 
 [dependencies.geom]
 path = "libs/geom"
