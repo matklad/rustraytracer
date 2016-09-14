@@ -12,7 +12,7 @@ use rayon::prelude::*;
 use color::Color;
 use utils::datastructures::Matrix;
 use geom::{UnitVector, Dot, Ray};
-use scene::{Intersection, Scene, Texture};
+use scene::{Intersection, Scene};
 use utils::time_it;
 use self::filters::Filter;
 use self::samplers::{Sample, Sampler, StratifiedSampler};
@@ -70,7 +70,7 @@ impl Tracer {
         let (results, rendering_time) = time_it(|| {
             let results = Mutex::new(Vec::new());
             pool.install(|| {
-                samplers.into_par_iter().for_each(|sampler| {
+                samplers.into_par_iter().weight_max().for_each(|sampler| {
                     let r = self.render_samples(&sampler.sample());
                     results.lock().unwrap().extend(r.into_iter());
                 })

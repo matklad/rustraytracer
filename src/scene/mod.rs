@@ -9,7 +9,6 @@ use std::error::Error;
 use std::collections::HashMap;
 
 use geom::{Point, UnitVector, Ray};
-use geom::shape::Shape;
 use color::Color;
 use self::camera::Camera;
 use self::primitive::Primitive;
