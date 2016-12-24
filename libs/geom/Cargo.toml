@@ -3,10 +3,9 @@ name = "geom"
 version = "0.1.0"
 authors = ["Aleksey Kladov <aleksey.kladov@gmail.com>"]
 
-
-[dependencies]
-rand = "0.3.0"
-rustc-serialize = "0.3"
-
 [dependencies.utils]
 path = "../utils"
+
+[dependencies]
+rand = "*"
+rustc-serialize = "*"

@@ -5,5 +5,5 @@ authors = ["Aleksey Kladov <aleksey.kladov@gmail.com>"]
 
 
 [dependencies]
-rand = "0.3.0"
-time = "0.1"
+rand = "*"
+time = "*"
