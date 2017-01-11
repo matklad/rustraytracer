@@ -41,14 +41,14 @@ impl ObjParser {
 
     pub fn parse(mut self, source: &mut io::Read) -> Result<Mesh, Box<Error>> {
         let mut s = String::new();
-        try!(source.read_to_string(&mut s));
+        source.read_to_string(&mut s)?;
         for line in s.lines() {
             if line.starts_with("v ") {
-                try!(self.parse_vertex(line));
+                self.parse_vertex(line)?;
             } else if line.starts_with("vn ") {
-                try!(self.parse_normal(line));
+                self.parse_normal(line)?;
             } else if line.starts_with("f ") {
-                try!(self.parse_face(line));
+                self.parse_face(line)?;
             }
         }
 
@@ -56,22 +56,22 @@ impl ObjParser {
     }
 
     fn parse_vertex(&mut self, s: &str) -> Result<(), Box<Error>> {
-        let coords = try!(ObjParser::parse_coordinates(s));
+        let coords = ObjParser::parse_coordinates(s)?;
         self.points.push(Point::new(coords.0, coords.1, coords.2));
         Ok(())
     }
 
     fn parse_normal(&mut self, s: &str) -> Result<(), Box<Error>> {
-        let coords = try!(ObjParser::parse_coordinates(s));
+        let coords = ObjParser::parse_coordinates(s)?;
         self.normals.push(Vector::new(coords.0, coords.1, coords.2).direction());
         Ok(())
     }
 
     fn parse_face_simple(&mut self, s: &str) -> Result<(), Box<Error>> {
-        let inds: Vec<usize> = try!(s.split_whitespace()
+        let inds = s.split_whitespace()
             .skip(1)
             .map(read_index)
-            .collect());
+            .collect::<Result<Vec<usize>, num::ParseIntError>>()?;
 
         if inds.len() != 3 {
             return Err(Box::new(ParseObjError));
@@ -88,19 +88,19 @@ impl ObjParser {
 
     fn parse_face_normals(&mut self, s: &str) -> Result<(), Box<Error>> {
         fn read_group(s: &str) -> Result<(usize, usize, usize), Box<Error>> {
-            let inds = try!(s.split('/')
-                            .map(|s| read_index(s))
-                            .collect::<Result<Vec<_>, _>>());
+            let inds = s.split('/')
+                .map(|s| read_index(s))
+                .collect::<Result<Vec<_>, _>>()?;
             if inds.len() != 3 {
                 return Err(Box::new(ParseObjError));
             }
             Ok((inds[0], inds[1], inds[2]))
         }
 
-        let verts = try!(s.split_whitespace()
-                         .skip(1)
-                         .map(read_group)
-                         .collect::<Result<Vec<_>, _>>());
+        let verts = s.split_whitespace()
+            .skip(1)
+            .map(read_group)
+            .collect::<Result<Vec<_>, _>>()?;
 
         if verts.len() != 3 {
             return Err(Box::new(ParseObjError));
@@ -127,10 +127,10 @@ impl ObjParser {
     }
 
     fn parse_coordinates(s: &str) -> Result<(f64, f64, f64), Box<Error>> {
-        let coords = try!(s.split_whitespace()
-                          .skip(1)
-                          .map(|s| s.parse::<f64>())
-                          .collect::<Result<Vec<_>, _>>());
+        let coords = s.split_whitespace()
+            .skip(1)
+            .map(|s| s.parse::<f64>())
+            .collect::<Result<Vec<_>, _>>()?;
         if coords.len() != 3 {
             return Err(Box::new(ParseObjError));
         }

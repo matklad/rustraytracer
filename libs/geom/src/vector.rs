@@ -64,7 +64,7 @@ impl rand::Rand for Vector {
 
 impl Decodable for Vector {
     fn decode<D: Decoder>(d: &mut D) -> Result<Vector, D::Error> {
-        let c: (f64, f64, f64) = try!(Decodable::decode(d));
+        let c: (f64, f64, f64) = Decodable::decode(d)?;
         Ok(Vector::new(c.0, c.1, c.2))
     }
 }
@@ -152,7 +152,7 @@ impl fmt::Display for UnitVector {
 
 impl Decodable for UnitVector {
     fn decode<D: Decoder>(d: &mut D) -> Result<UnitVector, D::Error> {
-        let v: Vector = try!(Decodable::decode(d));
+        let v: Vector = Decodable::decode(d)?;
         Ok(v.direction())
     }
 }

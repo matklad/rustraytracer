@@ -22,16 +22,16 @@ impl<'a> ImageDisplay<'a> for PpmWriter<'a> {
     fn draw(&'a mut self, image: &Image) -> io::Result<()> {
         let magic_number = "P3";
         let max_color = 255;
-        try!(write!(&mut self.destination, "{}\n{} {}\n{}\n",
-                    magic_number, image.width(), image.height(), max_color));
+        write!(&mut self.destination, "{}\n{} {}\n{}\n",
+               magic_number, image.width(), image.height(), max_color)?;
 
         for (xy, color) in image.iter() {
             if xy[0] == 0 {
-                try!(write!(&mut self.destination, "\n"));
+                write!(&mut self.destination, "\n")?;
             }
             let Rgb8Bit { r, g, b } = Rgb8Bit::truncate(&color);
-            try!(write!(&mut self.destination, "{:3} {:3} {:3}  ",
-                        r, g, b));
+            write!(&mut self.destination, "{:3} {:3} {:3}  ",
+                   r, g, b)?;
         }
         Ok(())
     }

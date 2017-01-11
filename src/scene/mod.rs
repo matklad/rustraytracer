@@ -40,9 +40,9 @@ impl Scene {
             materials.push(Material::from(v));
         }
 
-        let primitives = try!(config.primitives.into_iter()
-                                               .map(|p| read_primitive(p, &material_index_map))
-                                               .collect::<Result<Vec<Primitive>, _>>());
+        let primitives = config.primitives.into_iter()
+            .map(|p| read_primitive(p, &material_index_map))
+            .collect::<Result<Vec<Primitive>, _>>()?;
         let lights = config.lights.into_iter()
                                   .map(LightSource::from)
                                   .collect();

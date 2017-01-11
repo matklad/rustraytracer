@@ -140,7 +140,7 @@ impl Rgb8Bit {
 
 impl Decodable for Color {
     fn decode<D: Decoder>(d: &mut D) -> Result<Color, D::Error> {
-        let s: String = try!(Decodable::decode(d));
+        let s: String = Decodable::decode(d)?;
         Color::from_str(&s).map_err(|_| d.error("bad color"))
     }
 }

@@ -45,7 +45,7 @@ impl rand::Rand for Point {
 
 impl Decodable for Point {
     fn decode<D: Decoder>(d: &mut D) -> Result<Point, D::Error> {
-        let radius_vector: Vector = try!(Decodable::decode(d));
+        let radius_vector: Vector = Decodable::decode(d)?;
         Ok(Point {radius_vector: radius_vector})
     }
 }
