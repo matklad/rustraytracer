@@ -6,7 +6,6 @@ mod config;
 
 use std::{fmt, mem};
 use std::sync::Mutex;
-use rayon;
 use rayon::prelude::*;
 
 use color::Color;
@@ -65,15 +64,11 @@ impl Tracer {
 
     pub fn render(&self) -> (Image, TracingStats) {
         let samplers = self.sampler.split(self.n_threads * BLOCKS_PER_THREAD);
-        let config = rayon::Configuration::new().set_num_threads(self.n_threads as usize);
-        let pool = rayon::ThreadPool::new(config).unwrap();
         let (results, rendering_time) = time_it(|| {
             let results = Mutex::new(Vec::new());
-            pool.install(|| {
-                samplers.into_par_iter().weight_max().for_each(|sampler| {
-                    let r = self.render_samples(&sampler.sample());
-                    results.lock().unwrap().extend(r.into_iter());
-                })
+            samplers.into_par_iter().for_each(|sampler| {
+                let r = self.render_samples(&sampler.sample());
+                results.lock().unwrap().extend(r.into_iter());
             });
             let mut guard = results.lock().unwrap();
             mem::replace(&mut *guard, Vec::new())

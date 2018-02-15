@@ -24,7 +24,7 @@ fn read_scene_description(path: &str) -> String {
     let mut result = String::new();
     fs::File::open(path).unwrap().read_to_string(&mut result).unwrap();
     let comment = Regex::new(r"(?m)^\s*//.*$").unwrap();
-    comment.replace_all(&result, "\n")
+    comment.replace_all(&result, "\n").into_owned()
 }
 
 fn main() {
