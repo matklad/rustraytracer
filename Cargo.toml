@@ -21,3 +21,4 @@ rayon = "*"
 
 [profile.release]
 debug = true
+lto = true
