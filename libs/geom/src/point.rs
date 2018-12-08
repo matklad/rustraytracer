@@ -36,11 +36,12 @@ impl fmt::Display for Point {
     }
 }
 
-impl rand::Rand for Point {
-    fn rand<R: rand::Rng>(rng: &mut R) -> Point {
-        Point { radius_vector: Vector::rand(rng) }
+impl rand::distributions::Distribution<Point> for rand::distributions::Standard {
+    fn sample<R: rand::Rng + ?Sized>(&self, r: &mut R) -> Point {
+        Point { radius_vector: r.gen() }
     }
 }
+
 
 
 impl Decodable for Point {

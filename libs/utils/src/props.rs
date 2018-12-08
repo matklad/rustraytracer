@@ -1,9 +1,11 @@
 use rand;
+use rand::distributions::{Distribution, Standard};
 
 const N_CHECKS: i32 = 1000;
 
 pub fn check_prop2<A, B, F>(mut prop: F)
-    where A: rand::Rand, B: rand::Rand,
+    where Standard: Distribution<A>,
+          Standard: Distribution<B>,
           F: FnMut(A, B) -> () {
 
     for _ in 0..N_CHECKS {
@@ -15,7 +17,7 @@ pub fn check_prop2<A, B, F>(mut prop: F)
 
 
 pub fn check_prop<A, F>(mut prop: F)
-    where A: rand::Rand,
+    where Standard: Distribution<A>,
           F: FnMut(A) -> () {
 
     for _ in 0..N_CHECKS {

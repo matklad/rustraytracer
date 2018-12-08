@@ -56,9 +56,9 @@ impl fmt::Display for Vector {
 }
 
 
-impl rand::Rand for Vector {
-    fn rand<R: rand::Rng>(rng: &mut R) -> Vector {
-        Vector::new(f64::rand(rng), f64::rand(rng), f64::rand(rng))
+impl rand::distributions::Distribution<Vector> for rand::distributions::Standard {
+    fn sample<R: rand::Rng + ?Sized>(&self, r: &mut R) -> Vector {
+        Vector { x: r.gen(), y: r.gen(), z: r.gen() }
     }
 }
 
